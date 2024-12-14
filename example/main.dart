@@ -1,4 +1,4 @@
-import 'package:hijri/hijri_calendar.dart';
+import '../lib/hijri_calendar.dart';
 
 void main() {
   String locale = 'ar';
