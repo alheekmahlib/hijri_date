@@ -5,7 +5,7 @@ version: 3.0.1
 homepage: https://github.com/alheekmahlib/hijri_date
 
 environment:
-  sdk: '>=3.5.3 <4.0.0'
+  sdk: '>=3.6.1 <4.0.0'
 
 
 dev_dependencies:
