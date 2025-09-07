@@ -48,6 +48,33 @@ class HijriCalendar {
     gregorianToHijri(date.year, date.month, date.day);
   }
 
+  HijriCalendar.fromHijri(int year, int month, int day) {
+    if (!validateHijri(year, month, day)) {
+      throw ArgumentError('Invalid Hijri date: $year/$month/$day');
+    }
+
+    // Validate that the day is within the month's range
+    int daysInMonth = getDaysInMonth(year, month);
+    if (day > daysInMonth) {
+      throw ArgumentError(
+          'Day $day is invalid for month $month of year $year. This month has only $daysInMonth days.');
+    }
+
+    hYear = year;
+    hMonth = month;
+    hDay = day;
+    lengthOfMonth = daysInMonth;
+
+    // Calculate week day
+    DateTime gregorianDate = hijriToGregorian(year, month, day);
+    wkDay = gregorianDate.weekday == 7 ? 7 : gregorianDate.weekday;
+
+    // Set month and day names
+    longMonthName = _local[language]!['long']![month]!;
+    shortMonthName = _local[language]!['short']![month]!;
+    dayWeName = _local[language]!['days']![wkDay]!;
+  }
+
   HijriCalendar.now() {
     this._now();
   }

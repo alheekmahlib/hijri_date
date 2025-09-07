@@ -41,6 +41,25 @@ Hijri Calendar Converter
   print(h_date.getLongMonthName()); //Rabi' al-awwal
   print(h_date.lengthOfMonth); // 29 days
 ```
+
+##### From Custom Hijri Date
+```dart
+  // Create from custom Hijri date
+  var h_custom = HijriCalendar.fromHijri(1446, 9, 15); // Ramadan 15, 1446
+  print(h_custom.hYear); // 1446
+  print(h_custom.hMonth); // 9
+  print(h_custom.hDay); // 15
+  print(h_custom.getLongMonthName()); // Ramadan
+  print(h_custom.getDayName()); // Saturday (calculated automatically)
+  print(h_custom.fullDate()); // Saturday, Ramadan 15, 1446
+  print(h_custom.lengthOfMonth); // 29 days
+  
+  // With Arabic locale
+  HijriCalendar.setLocal('ar');
+  var h_arabic = HijriCalendar.fromHijri(1446, 12, 10);
+  print(h_arabic.getLongMonthName()); // ذو الحجة
+  print(h_arabic.getDayName()); // الجمعة
+```
 ##### Check if date is valid
 ```dart
   //
@@ -49,6 +68,19 @@ Hijri Calendar Converter
   _check_date.hMonth = 11;
   _check_date.hDay = 30;
   print(_check_date.isValid()); // false -> This month is only 29 days
+  
+  // Automatic validation with fromHijri constructor
+  try {
+    var invalid_date = HijriCalendar.fromHijri(1446, 1, 30); // Muharram has only 29 days in 1446
+  } catch (e) {
+    print(e); // Error: Day 30 is invalid for month 1 of year 1446
+  }
+  
+  try {
+    var invalid_month = HijriCalendar.fromHijri(1446, 13, 1); // Invalid month
+  } catch (e) {
+    print(e); // Error: Invalid Hijri date: 1446/13/1
+  }
 ```
 ##### From Ummalqura to Gregorian
 ```dart
