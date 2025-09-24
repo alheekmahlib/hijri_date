@@ -3,80 +3,176 @@
 
 library hijri_utils;
 
-import 'hijri_calendar.dart';
+import 'hijri_date.dart';
+import 'religious_event.dart';
 
-/// Important Islamic dates and their significance
-class IslamicEvents {
-  static const Map<String, Map<String, dynamic>> events = {
-    // Muharram events
-    '1/1': {
-      'name': 'رأس السنة الهجرية',
-      'nameEn': 'Islamic New Year',
-      'type': 'religious'
-    },
-    '1/10': {'name': 'عاشوراء', 'nameEn': 'Day of Ashura', 'type': 'religious'},
-
-    // Rabi' Al-Awwal events
-    '3/12': {
-      'name': 'المولد النبوي الشريف',
-      'nameEn': 'Prophet Muhammad Birthday',
-      'type': 'religious'
-    },
-
-    // Rajab events
-    '7/27': {
-      'name': 'ليلة الإسراء والمعراج',
-      'nameEn': 'Isra and Mi\'raj',
-      'type': 'religious'
-    },
-
-    // Sha'aban events
-    '8/15': {
-      'name': 'ليلة البراءة',
-      'nameEn': 'Laylat al-Bara\'at',
-      'type': 'religious'
-    },
-
-    // Ramadan events
-    '9/27': {
-      'name': 'ليلة القدر',
-      'nameEn': 'Laylat al-Qadr',
-      'type': 'religious'
-    },
-
-    // Shawwal events
-    '10/1': {'name': 'عيد الفطر', 'nameEn': 'Eid al-Fitr', 'type': 'holiday'},
-
-    // Dhu Al-Hijjah events
-    '12/9': {
-      'name': 'يوم عرفة',
-      'nameEn': 'Day of Arafah',
-      'type': 'religious'
-    },
-    '12/10': {'name': 'عيد الأضحى', 'nameEn': 'Eid al-Adha', 'type': 'holiday'},
-  };
-
-  /// Gets the Islamic event for a specific date
-  static Map<String, dynamic>? getEventForDate(HijriCalendar date) {
-    final key = '${date.hMonth}/${date.hDay}';
-    return events[key];
-  }
-
-  /// Checks if a date is an Islamic holiday
-  static bool isIslamicHoliday(HijriCalendar date) {
-    final event = getEventForDate(date);
-    return event?['type'] == 'holiday';
-  }
-
-  /// Gets all events in a specific month
-  static List<Map<String, dynamic>> getEventsInMonth(int month) {
-    return events.entries
-        .where((entry) => entry.key.startsWith('$month/'))
-        .map((entry) => {
-              'day': int.parse(entry.key.split('/')[1]),
-              ...entry.value,
-            })
+/// Islamic Events Helper - integrates with the new religious events system
+class IslamicEventsHelper {
+  /// Gets Islamic events for a specific date using the new system
+  static List<IslamicEvent> getEventsForDate(HijriDate date) {
+    final allEvents = IslamicEventsManager.allEvents;
+    return allEvents
+        .where((event) =>
+            event.month == date.hMonth && event.days.contains(date.hDay))
         .toList();
+  }
+
+  /// Checks if a date has any Islamic events
+  static bool hasEvents(HijriDate date) {
+    return getEventsForDate(date).isNotEmpty;
+  }
+
+  /// Checks if a date is an Islamic holiday (Eid)
+  static bool isIslamicHoliday(HijriDate date) {
+    final events = getEventsForDate(date);
+    return events.any((event) =>
+        event.type == IslamicEventType.eidAlFitr ||
+        event.type == IslamicEventType.eidAlAdha);
+  }
+
+  /// Gets the next Islamic event from current date
+  static IslamicEvent? getNextEvent([HijriDate? fromDate]) {
+    fromDate ??= HijriDate.now();
+    return IslamicEventsManager.getNextEvent();
+  }
+
+  /// Gets all events in a specific month using the new system
+  static List<IslamicEvent> getEventsInMonth(int month) {
+    return IslamicEventsManager.getEventsInMonth(month);
+  }
+
+  /// Gets events by type (Eid, fasting, sacred days, etc.)
+  static List<IslamicEvent> getEventsByType(IslamicEventType type) {
+    return IslamicEventsManager.getEventsByType(type);
+  }
+
+  /// Calculates days until a specific event (simplified version)
+  static int calculateDaysUntilEvent(
+      HijriDate currentDate, IslamicEvent event) {
+    // Find the next occurrence of this event
+    final currentYear = currentDate.hYear;
+
+    // Try current year first
+    for (int day in event.days) {
+      final eventDate = HijriDate.fromHijri(currentYear, event.month, day);
+      if (eventDate >= currentDate) {
+        // Calculate positive difference (eventDate - currentDate)
+        return eventDate.differenceInDays(currentDate);
+      }
+    }
+
+    // If no occurrence in current year, try next year
+    for (int day in event.days) {
+      final eventDate = HijriDate.fromHijri(currentYear + 1, event.month, day);
+      // Calculate positive difference (eventDate - currentDate)
+      return eventDate.differenceInDays(currentDate);
+    }
+
+    return 0;
+  }
+
+  /// Gets comprehensive day information including events
+  static Map<String, dynamic> getDayInformation(HijriDate date) {
+    final todayEvents = getEventsForDate(date);
+    final nextEvent = getNextEvent(date);
+
+    return {
+      'hijriDate': date.fullDate(),
+      'todayEvents': todayEvents,
+      'hasEvents': todayEvents.isNotEmpty,
+      'isHoliday': isIslamicHoliday(date),
+      'nextEvent': nextEvent,
+      'daysUntilNextEvent':
+          nextEvent != null ? calculateDaysUntilEvent(date, nextEvent) : null,
+      'eventsInCurrentMonth': getEventsInMonth(date.hMonth),
+      'daysLeftInMonth': date.lengthOfMonth - date.hDay,
+      'daysLeftInYear': _calculateDaysLeftInYear(date),
+    };
+  }
+
+  /// Helper method to calculate days left in the current Hijri year
+  static int _calculateDaysLeftInYear(HijriDate date) {
+    int totalDays = 0;
+
+    // Days left in current month
+    totalDays += (date.lengthOfMonth - date.hDay);
+
+    // Days in remaining months
+    for (int month = date.hMonth + 1; month <= 12; month++) {
+      totalDays += date.getDaysInMonth(date.hYear, month);
+    }
+
+    return totalDays;
+  }
+
+  /// Gets main events (non-reminder events)
+  static List<IslamicEvent> getMainEvents() {
+    return IslamicEventsManager.getMainEvents();
+  }
+
+  /// Gets reminder events
+  static List<IslamicEvent> getReminders() {
+    return IslamicEventsManager.getReminders();
+  }
+
+  /// Gets events statistics
+  static Map<String, int> getEventsStatistics() {
+    return IslamicEventsManager.getEventsStatistics();
+  }
+
+  /// Gets upcoming events in the next few months
+  static List<IslamicEvent> getUpcomingEvents({int monthsAhead = 3}) {
+    final currentDate = HijriDate.now();
+    final allEvents = IslamicEventsManager.allEvents;
+    final upcomingEvents = <IslamicEvent>[];
+
+    for (final event in allEvents) {
+      final daysUntil = calculateDaysUntilEvent(currentDate, event);
+      // Only include events that are actually upcoming (positive days)
+      if (daysUntil > 0 && daysUntil <= monthsAhead * 30) {
+        upcomingEvents.add(event);
+      }
+    }
+
+    // Sort by days until event
+    upcomingEvents.sort((a, b) {
+      final daysA = calculateDaysUntilEvent(currentDate, a);
+      final daysB = calculateDaysUntilEvent(currentDate, b);
+      return daysA.compareTo(daysB);
+    });
+
+    return upcomingEvents;
+  }
+
+  /// Gets all events
+  static List<IslamicEvent> getAllEvents() {
+    return IslamicEventsManager.allEvents;
+  }
+
+  /// Gets upcoming events with accurate calculations and details
+  static List<Map<String, dynamic>> getUpcomingEventsWithDetails(
+      {int monthsAhead = 6}) {
+    final currentDate = HijriDate.now();
+    final allEvents = IslamicEventsManager.allEvents;
+    final upcomingEvents = <Map<String, dynamic>>[];
+
+    for (final event in allEvents) {
+      final daysUntil = calculateDaysUntilEvent(currentDate, event);
+      // Only include events that are actually upcoming (positive days)
+      if (daysUntil > 0 && daysUntil <= monthsAhead * 30) {
+        upcomingEvents.add({
+          'event': event,
+          'daysUntil': daysUntil,
+          'arabicTitle': event.titleArabic,
+          'englishTitle': event.titleEnglish,
+        });
+      }
+    }
+
+    // Sort by days until event
+    upcomingEvents.sort((a, b) => a['daysUntil'].compareTo(b['daysUntil']));
+
+    return upcomingEvents;
   }
 }
 
@@ -97,7 +193,7 @@ class PrayerTimeHelper {
   }
 
   /// Checks if a date falls on a recommended fasting day
-  static bool isRecommendedFastingDay(HijriCalendar date) {
+  static bool isRecommendedFastingDay(HijriDate date) {
     final recommendedDays = getRecommendedFastingDays(date.hMonth);
     return recommendedDays.contains(date.hDay);
   }
@@ -158,17 +254,17 @@ class HijriUtils {
   }
 
   /// Calculates the number of days between two Hijri dates
-  static int daysBetween(HijriCalendar start, HijriCalendar end) {
+  static int daysBetween(HijriDate start, HijriDate end) {
     return start.differenceInDays(end).abs();
   }
 
   /// Gets all Fridays in a specific Hijri month
-  static List<HijriCalendar> getFridaysInMonth(int year, int month) {
-    final daysInMonth = HijriCalendar().getDaysInMonth(year, month);
-    final fridays = <HijriCalendar>[];
+  static List<HijriDate> getFridaysInMonth(int year, int month) {
+    final daysInMonth = HijriDate().getDaysInMonth(year, month);
+    final fridays = <HijriDate>[];
 
     for (int day = 1; day <= daysInMonth; day++) {
-      final date = HijriCalendar.fromHijri(year, month, day);
+      final date = HijriDate.fromHijri(year, month, day);
       if (date.wkDay == 5) {
         // Friday
         fridays.add(date);
@@ -178,18 +274,17 @@ class HijriUtils {
   }
 
   /// Validates if a date range is correct
-  static bool isValidDateRange(HijriCalendar start, HijriCalendar end) {
+  static bool isValidDateRange(HijriDate start, HijriDate end) {
     return start <= end;
   }
 
   /// Generates a list of dates between two dates
-  static List<HijriCalendar> getDateRange(
-      HijriCalendar start, HijriCalendar end) {
+  static List<HijriDate> getDateRange(HijriDate start, HijriDate end) {
     if (!isValidDateRange(start, end)) {
       throw ArgumentError('Start date must be before or equal to end date');
     }
 
-    final dates = <HijriCalendar>[];
+    final dates = <HijriDate>[];
     var current = start.copy();
 
     while (current <= end) {
@@ -204,9 +299,9 @@ class HijriUtils {
 /// Age calculation utilities
 class AgeCalculator {
   /// Calculates detailed age (years, months, days)
-  static Map<String, int> calculateDetailedAge(HijriCalendar birthDate,
-      [HijriCalendar? currentDate]) {
-    currentDate ??= HijriCalendar.now();
+  static Map<String, int> calculateDetailedAge(HijriDate birthDate,
+      [HijriDate? currentDate]) {
+    currentDate ??= HijriDate.now();
 
     int years = currentDate.hYear - birthDate.hYear;
     int months = currentDate.hMonth - birthDate.hMonth;

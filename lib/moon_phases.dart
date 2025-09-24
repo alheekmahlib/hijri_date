@@ -4,7 +4,7 @@ library moon_phases;
 
 import 'dart:math' as math;
 
-import 'hijri_calendar.dart';
+import 'hijri_date.dart';
 
 /// أطوار القمر المختلفة
 enum MoonPhase {
@@ -190,18 +190,18 @@ class MoonPhaseCalculator {
   }
 
   /// حساب طور القمر للتاريخ الهجري
-  static MoonPhaseInfo getMoonPhaseForHijri(HijriCalendar hijriDate) {
+  static MoonPhaseInfo getMoonPhaseForHijri(HijriDate hijriDate) {
     DateTime gregorianDate = hijriDate.hijriToGregorian(
         hijriDate.hYear, hijriDate.hMonth, hijriDate.hDay);
     return getMoonPhase(gregorianDate);
   }
 
   /// الحصول على جميع تواريخ البدر في سنة هجرية معينة
-  static List<HijriCalendar> getFullMoonDatesInHijriYear(int hijriYear) {
-    List<HijriCalendar> fullMoons = [];
+  static List<HijriDate> getFullMoonDatesInHijriYear(int hijriYear) {
+    List<HijriDate> fullMoons = [];
 
     // البدء من بداية السنة الهجرية
-    HijriCalendar startDate = HijriCalendar();
+    HijriDate startDate = HijriDate();
     startDate.hYear = hijriYear;
     startDate.hMonth = 1;
     startDate.hDay = 1;
@@ -218,7 +218,7 @@ class MoonPhaseCalculator {
       // Add only when transitioning to full moon (to avoid duplicate consecutive days)
       if (moonInfo.phase == MoonPhase.fullMoon &&
           lastPhase != MoonPhase.fullMoon) {
-        HijriCalendar hijriFullMoon = HijriCalendar.fromDate(currentDate);
+        HijriDate hijriFullMoon = HijriDate.fromDate(currentDate);
         fullMoons.add(hijriFullMoon);
       }
 
@@ -230,10 +230,10 @@ class MoonPhaseCalculator {
   }
 
   /// الحصول على جميع تواريخ المحاق في سنة هجرية معينة
-  static List<HijriCalendar> getNewMoonDatesInHijriYear(int hijriYear) {
-    List<HijriCalendar> newMoons = [];
+  static List<HijriDate> getNewMoonDatesInHijriYear(int hijriYear) {
+    List<HijriDate> newMoons = [];
 
-    HijriCalendar startDate = HijriCalendar();
+    HijriDate startDate = HijriDate();
     startDate.hYear = hijriYear;
     startDate.hMonth = 1;
     startDate.hDay = 1;
@@ -250,7 +250,7 @@ class MoonPhaseCalculator {
       // Add only when transitioning to new moon (to avoid duplicate consecutive days)
       if (moonInfo.phase == MoonPhase.newMoon &&
           lastPhase != MoonPhase.newMoon) {
-        HijriCalendar hijriNewMoon = HijriCalendar.fromDate(currentDate);
+        HijriDate hijriNewMoon = HijriDate.fromDate(currentDate);
         newMoons.add(hijriNewMoon);
       }
 

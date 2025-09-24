@@ -1,10 +1,11 @@
-library hijri;
+library hijri_date;
 
 import 'digits_converter.dart';
 import 'hijri_array.dart';
 import 'moon_phases.dart';
+import 'religious_event.dart';
 
-class HijriCalendar {
+class HijriDate {
   static String language = 'en';
   late int lengthOfMonth;
   int hDay = 1;
@@ -69,22 +70,22 @@ class HijriCalendar {
 
   /// Sets the language for localization
   /// Returns a new HijriCalendar instance with the specified locale
-  factory HijriCalendar.setLocal(String locale) {
+  factory HijriDate.setLocal(String locale) {
     if (!_local.containsKey(locale)) {
       throw ArgumentError(
           'Unsupported locale: $locale. Supported locales: ${_local.keys.join(', ')}');
     }
     language = locale;
-    return HijriCalendar();
+    return HijriDate();
   }
 
-  HijriCalendar();
+  HijriDate();
 
-  HijriCalendar.fromDate(DateTime date) {
+  HijriDate.fromDate(DateTime date) {
     gregorianToHijri(date.year, date.month, date.day);
   }
 
-  HijriCalendar.fromHijri(int year, int month, int day) {
+  HijriDate.fromHijri(int year, int month, int day) {
     if (!validateHijri(year, month, day)) {
       throw ArgumentError('Invalid Hijri date: $year/$month/$day');
     }
@@ -111,17 +112,17 @@ class HijriCalendar {
     dayWeName = _local[language]!['days']![wkDay]!;
   }
 
-  HijriCalendar.now() {
+  HijriDate.now() {
     this._now();
   }
 
-  HijriCalendar.addMonth(int year, int month) {
+  HijriDate.addMonth(int year, int month) {
     hYear = month % 12 == 0 ? year - 1 : year;
     hMonth = month % 12 == 0 ? 12 : month % 12;
     hDay = 1;
   }
 
-  HijriCalendar.addLocale(String locale, Map<String, Map<int, String>> names) {
+  HijriDate.addLocale(String locale, Map<String, Map<int, String>> names) {
     _local[locale] = names;
   }
 
@@ -445,7 +446,7 @@ class HijriCalendar {
 
   /// Gets the current Hijri date as a formatted string
   static String get currentHijriDate {
-    final today = HijriCalendar.now();
+    final today = HijriDate.now();
     return today.fullDate();
   }
 
@@ -470,30 +471,30 @@ class HijriCalendar {
   bool get isWeekend => wkDay == 5 || wkDay == 6; // Friday or Saturday
 
   /// Gets the first day of the current month
-  HijriCalendar get firstDayOfMonth {
-    return HijriCalendar.fromHijri(hYear, hMonth, 1);
+  HijriDate get firstDayOfMonth {
+    return HijriDate.fromHijri(hYear, hMonth, 1);
   }
 
   /// Gets the last day of the current month
-  HijriCalendar get lastDayOfMonth {
+  HijriDate get lastDayOfMonth {
     final daysInMonth = getDaysInMonth(hYear, hMonth);
-    return HijriCalendar.fromHijri(hYear, hMonth, daysInMonth);
+    return HijriDate.fromHijri(hYear, hMonth, daysInMonth);
   }
 
   /// Adds specified number of days to the current date
-  HijriCalendar addDays(int days) {
+  HijriDate addDays(int days) {
     final gregorianDate = hijriToGregorian(hYear, hMonth, hDay);
     final newGregorianDate = gregorianDate.add(Duration(days: days));
-    return HijriCalendar.fromDate(newGregorianDate);
+    return HijriDate.fromDate(newGregorianDate);
   }
 
   /// Subtracts specified number of days from the current date
-  HijriCalendar subtractDays(int days) {
+  HijriDate subtractDays(int days) {
     return addDays(-days);
   }
 
   /// Adds specified number of months to the current date
-  HijriCalendar addMonths(int months) {
+  HijriDate addMonths(int months) {
     int newYear = hYear;
     int newMonth = hMonth + months;
 
@@ -510,30 +511,30 @@ class HijriCalendar {
     final daysInNewMonth = getDaysInMonth(newYear, newMonth);
     final newDay = hDay > daysInNewMonth ? daysInNewMonth : hDay;
 
-    return HijriCalendar.fromHijri(newYear, newMonth, newDay);
+    return HijriDate.fromHijri(newYear, newMonth, newDay);
   }
 
   /// Subtracts specified number of months from the current date
-  HijriCalendar subtractMonths(int months) {
+  HijriDate subtractMonths(int months) {
     return addMonths(-months);
   }
 
   /// Adds specified number of years to the current date
-  HijriCalendar addYears(int years) {
+  HijriDate addYears(int years) {
     final newYear = hYear + years;
     final daysInNewMonth = getDaysInMonth(newYear, hMonth);
     final newDay = hDay > daysInNewMonth ? daysInNewMonth : hDay;
 
-    return HijriCalendar.fromHijri(newYear, hMonth, newDay);
+    return HijriDate.fromHijri(newYear, hMonth, newDay);
   }
 
   /// Subtracts specified number of years from the current date
-  HijriCalendar subtractYears(int years) {
+  HijriDate subtractYears(int years) {
     return addYears(-years);
   }
 
   /// Calculates the difference in days between this date and another date
-  int differenceInDays(HijriCalendar other) {
+  int differenceInDays(HijriDate other) {
     final thisGregorian = hijriToGregorian(hYear, hMonth, hDay);
     final otherGregorian =
         hijriToGregorian(other.hYear, other.hMonth, other.hDay);
@@ -541,8 +542,8 @@ class HijriCalendar {
   }
 
   /// Calculates the age in years based on current date
-  int ageInYears([HijriCalendar? fromDate]) {
-    final reference = fromDate ?? HijriCalendar.now();
+  int ageInYears([HijriDate? fromDate]) {
+    final reference = fromDate ?? HijriDate.now();
     int age = reference.hYear - hYear;
 
     // Adjust if birthday hasn't occurred this year
@@ -555,19 +556,19 @@ class HijriCalendar {
   }
 
   /// Returns a list of all Hijri dates in the current month
-  List<HijriCalendar> getDatesInMonth() {
+  List<HijriDate> getDatesInMonth() {
     final daysInMonth = getDaysInMonth(hYear, hMonth);
-    return List.generate(daysInMonth,
-        (index) => HijriCalendar.fromHijri(hYear, hMonth, index + 1));
+    return List.generate(
+        daysInMonth, (index) => HijriDate.fromHijri(hYear, hMonth, index + 1));
   }
 
   /// Checks if this date is in the same month as another date
-  bool isSameMonth(HijriCalendar other) {
+  bool isSameMonth(HijriDate other) {
     return hYear == other.hYear && hMonth == other.hMonth;
   }
 
   /// Checks if this date is in the same year as another date
-  bool isSameYear(HijriCalendar other) {
+  bool isSameYear(HijriDate other) {
     return hYear == other.hYear;
   }
 
@@ -575,8 +576,8 @@ class HijriCalendar {
   String get isoFormat => format(hYear, hMonth, hDay, "yyyy-mm-dd");
 
   /// Creates a copy of this HijriCalendar instance
-  HijriCalendar copy() {
-    return HijriCalendar.fromHijri(hYear, hMonth, hDay);
+  HijriDate copy() {
+    return HijriDate.fromHijri(hYear, hMonth, hDay);
   }
 
   /// Converts to JSON representation
@@ -594,8 +595,8 @@ class HijriCalendar {
   }
 
   /// Creates HijriCalendar from JSON
-  factory HijriCalendar.fromJson(Map<String, dynamic> json) {
-    return HijriCalendar.fromHijri(
+  factory HijriDate.fromJson(Map<String, dynamic> json) {
+    return HijriDate.fromHijri(
       json['year'] as int,
       json['month'] as int,
       json['day'] as int,
@@ -606,7 +607,7 @@ class HijriCalendar {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is HijriCalendar &&
+    return other is HijriDate &&
         other.hYear == hYear &&
         other.hMonth == hMonth &&
         other.hDay == hDay;
@@ -617,20 +618,20 @@ class HijriCalendar {
   int get hashCode => Object.hash(hYear, hMonth, hDay);
 
   /// Comparison operators for sorting
-  bool operator <(HijriCalendar other) {
+  bool operator <(HijriDate other) {
     return isBefore(other.hYear, other.hMonth, other.hDay);
   }
 
-  bool operator <=(HijriCalendar other) {
+  bool operator <=(HijriDate other) {
     return isBefore(other.hYear, other.hMonth, other.hDay) ||
         isAtSameMomentAs(other.hYear, other.hMonth, other.hDay);
   }
 
-  bool operator >(HijriCalendar other) {
+  bool operator >(HijriDate other) {
     return isAfter(other.hYear, other.hMonth, other.hDay);
   }
 
-  bool operator >=(HijriCalendar other) {
+  bool operator >=(HijriDate other) {
     return isAfter(other.hYear, other.hMonth, other.hDay) ||
         isAtSameMomentAs(other.hYear, other.hMonth, other.hDay);
   }
@@ -646,31 +647,31 @@ class HijriCalendar {
   /// حساب طور القمر للتاريخ الهجري المحدد
   /// Returns the moon phase information for the specified Hijri date
   static MoonPhaseInfo getMoonPhaseForDate(int year, int month, int day) {
-    HijriCalendar hijriDate = HijriCalendar.fromHijri(year, month, day);
+    HijriDate hijriDate = HijriDate.fromHijri(year, month, day);
     return MoonPhaseCalculator.getMoonPhaseForHijri(hijriDate);
   }
 
   /// الحصول على جميع تواريخ البدر في السنة الهجرية الحالية
   /// Gets all full moon dates in the current Hijri year
-  List<HijriCalendar> getFullMoonDatesThisYear() {
+  List<HijriDate> getFullMoonDatesThisYear() {
     return MoonPhaseCalculator.getFullMoonDatesInHijriYear(hYear);
   }
 
   /// الحصول على جميع تواريخ البدر في سنة هجرية محددة
   /// Gets all full moon dates in the specified Hijri year
-  static List<HijriCalendar> getFullMoonDatesInYear(int hijriYear) {
+  static List<HijriDate> getFullMoonDatesInYear(int hijriYear) {
     return MoonPhaseCalculator.getFullMoonDatesInHijriYear(hijriYear);
   }
 
   /// الحصول على جميع تواريخ المحاق في السنة الهجرية الحالية
   /// Gets all new moon dates in the current Hijri year
-  List<HijriCalendar> getNewMoonDatesThisYear() {
+  List<HijriDate> getNewMoonDatesThisYear() {
     return MoonPhaseCalculator.getNewMoonDatesInHijriYear(hYear);
   }
 
   /// الحصول على جميع تواريخ المحاق في سنة هجرية محددة
   /// Gets all new moon dates in the specified Hijri year
-  static List<HijriCalendar> getNewMoonDatesInYear(int hijriYear) {
+  static List<HijriDate> getNewMoonDatesInYear(int hijriYear) {
     return MoonPhaseCalculator.getNewMoonDatesInHijriYear(hijriYear);
   }
 
@@ -686,7 +687,7 @@ class HijriCalendar {
   /// Checks if the crescent moon is visible for the specified date
   static bool isHilalVisibleForDate(int year, int month, int day,
       {double minimumAltitude = 10.0}) {
-    HijriCalendar hijriDate = HijriCalendar.fromHijri(year, month, day);
+    HijriDate hijriDate = HijriDate.fromHijri(year, month, day);
     DateTime gregorianDate = hijriDate.hijriToGregorian(year, month, day);
     return MoonPhaseCalculator.isHilalVisible(gregorianDate,
         minimumAltitude: minimumAltitude);
@@ -705,7 +706,7 @@ class HijriCalendar {
   /// Gets moon phase statistics for the specified Hijri month
   static Map<MoonPhase, int> getMoonPhaseStatisticsForMonth(
       int year, int month) {
-    HijriCalendar hijriDate = HijriCalendar.fromHijri(year, month, 1);
+    HijriDate hijriDate = HijriDate.fromHijri(year, month, 1);
     DateTime startDate = hijriDate.hijriToGregorian(year, month, 1);
     int daysInMonth = hijriDate.getDaysInMonth(year, month);
     DateTime endDate = hijriDate.hijriToGregorian(year, month, daysInMonth);
@@ -716,7 +717,7 @@ class HijriCalendar {
   /// Gets the current moon phase name in the specified language
   String getMoonPhaseName({String? language}) {
     MoonPhaseInfo moonInfo = getMoonPhase();
-    language ??= HijriCalendar.language;
+    language ??= HijriDate.language;
     return MoonPhaseCalculator.getPhaseName(moonInfo.phase, language);
   }
 
@@ -754,7 +755,7 @@ class HijriCalendar {
   /// Detailed moon information for the current date
   String moonInfo({String? language}) {
     MoonPhaseInfo moonInfo = getMoonPhase();
-    language ??= HijriCalendar.language;
+    language ??= HijriDate.language;
 
     String phaseName =
         MoonPhaseCalculator.getPhaseName(moonInfo.phase, language);
@@ -767,5 +768,146 @@ class HijriCalendar {
     } else {
       return 'Moon Phase: $phaseName, Illumination: $illumination, Age: $age days';
     }
+  }
+
+  // ======================== Islamic Events Methods ========================
+
+  /// الحصول على المناسبات الإسلامية للتاريخ الحالي
+  /// Gets Islamic events for the current date
+  List<IslamicEvent> getTodaysEvents() {
+    return IslamicEventsManager.getTodaysEvents()
+        .where((event) => event.month == hMonth && event.days.contains(hDay))
+        .toList();
+  }
+
+  /// الحصول على المناسبات الإسلامية لتاريخ محدد
+  /// Gets Islamic events for a specific date
+  static List<IslamicEvent> getEventsForDate(int month, int day) {
+    return IslamicEventsManager.allEvents
+        .where((event) => event.month == month && event.days.contains(day))
+        .toList();
+  }
+
+  /// الحصول على أقرب مناسبة إسلامية قادمة
+  /// Gets the next upcoming Islamic event
+  IslamicEvent? getNextEvent() {
+    return IslamicEventsManager.getNextEvent();
+  }
+
+  /// حساب الأيام المتبقية للمناسبة (تقريبي)
+  /// Calculates days remaining until an event (approximate)
+  int daysUntilEvent(IslamicEvent event) {
+    // حساب تقريبي للأيام المتبقية
+    int targetMonth = event.month;
+    int targetDay = event.days.first;
+
+    if (targetMonth == hMonth && targetDay >= hDay) {
+      return targetDay - hDay;
+    } else if (targetMonth > hMonth) {
+      int daysInCurrentMonth = lengthOfMonth - hDay;
+      int daysInBetween = 0;
+      for (int m = hMonth + 1; m < targetMonth; m++) {
+        daysInBetween += getDaysInMonth(hYear, m);
+      }
+      return daysInCurrentMonth + daysInBetween + targetDay;
+    } else {
+      // المناسبة في السنة القادمة
+      int daysInCurrentMonth = lengthOfMonth - hDay;
+      int daysInRemainingYear = daysLeftInYear - daysInCurrentMonth;
+      int daysInTargetMonth = targetDay;
+      return daysInCurrentMonth + daysInRemainingYear + daysInTargetMonth;
+    }
+  }
+
+  /// الحصول على جميع مناسبات الشهر الحالي
+  /// Gets all events in the current month
+  List<IslamicEvent> getMonthEvents() {
+    return IslamicEventsManager.getEventsInMonth(hMonth);
+  }
+
+  /// الحصول على جميع مناسبات شهر محدد
+  /// Gets all events in a specific month
+  static List<IslamicEvent> getEventsForMonth(int month) {
+    return IslamicEventsManager.getEventsInMonth(month);
+  }
+
+  /// البحث عن مناسبات بالنوع
+  /// Search for events by type
+  static List<IslamicEvent> getEventsByType(IslamicEventType type) {
+    return IslamicEventsManager.getEventsByType(type);
+  }
+
+  /// الحصول على الأحاديث المرتبطة بنوع المناسبة
+  /// Gets hadiths related to event type
+  static List<HadithInfo> getEventHadiths(IslamicEventType eventType) {
+    return IslamicEventsManager.getHadithsForEventType(eventType);
+  }
+
+  /// الحصول على إحصائيات المناسبات
+  /// Gets events statistics
+  static Map<String, int> getEventsStatistics() {
+    return IslamicEventsManager.getEventsStatistics();
+  }
+
+  /// الأيام المتبقية في الشهر الحالي
+  /// Days remaining in current month
+  int get daysLeftInMonth {
+    return lengthOfMonth - hDay;
+  }
+
+  /// الأيام المتبقية في السنة الهجرية الحالية
+  /// Days remaining in current Hijri year
+  int get daysLeftInYear {
+    int totalDays = lengthOfYear();
+    return totalDays - dayOfYear;
+  }
+
+  /// معلومات شاملة عن اليوم الحالي مع المناسبات
+  /// Comprehensive information about the current day with events
+  String getDayInfo({String? language}) {
+    language ??= HijriDate.language;
+
+    List<IslamicEvent> todaysEvents = getTodaysEvents();
+    IslamicEvent? nextEvent = getNextEvent();
+
+    String info = '';
+
+    if (language == 'ar') {
+      info = 'التاريخ الهجري: ${fullDate()}\n';
+      info += 'أيام متبقية في الشهر: $daysLeftInMonth يوم\n';
+      info += 'أيام متبقية في السنة: $daysLeftInYear يوم\n';
+
+      if (todaysEvents.isNotEmpty) {
+        info += '\nمناسبات اليوم:\n';
+        for (var event in todaysEvents) {
+          info += '• ${event.titleArabic}\n';
+        }
+      }
+
+      if (nextEvent != null) {
+        int daysUntil = daysUntilEvent(nextEvent);
+        info +=
+            '\nأقرب مناسبة: ${nextEvent.titleArabic} (خلال $daysUntil يوم)\n';
+      }
+    } else {
+      info = 'Hijri Date: ${fullDate()}\n';
+      info += 'Days left in month: $daysLeftInMonth days\n';
+      info += 'Days left in year: $daysLeftInYear days\n';
+
+      if (todaysEvents.isNotEmpty) {
+        info += '\nToday\'s Events:\n';
+        for (var event in todaysEvents) {
+          info += '• ${event.titleEnglish}\n';
+        }
+      }
+
+      if (nextEvent != null) {
+        int daysUntil = daysUntilEvent(nextEvent);
+        info +=
+            '\nNext Event: ${nextEvent.titleEnglish} (in $daysUntil days)\n';
+      }
+    }
+
+    return info;
   }
 }

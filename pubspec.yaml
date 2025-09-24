@@ -1,4 +1,4 @@
-name: hijri
+name: hijri_date
 description: >
   Enhanced Hijri Calendar library with comprehensive date operations, Islamic events, 
   multi-language support, and advanced utilities for Arabic, English, and Turkish locales.
