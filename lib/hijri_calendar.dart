@@ -2,6 +2,7 @@ library hijri;
 
 import 'digits_converter.dart';
 import 'hijri_array.dart';
+import 'moon_phases.dart';
 
 class HijriCalendar {
   static String language = 'en';
@@ -36,8 +37,13 @@ class HijriCalendar {
     },
   };
 
-  // Consider switching to the factory pattern
+  /// Sets the language for localization
+  /// Returns a new HijriCalendar instance with the specified locale
   factory HijriCalendar.setLocal(String locale) {
+    if (!_local.containsKey(locale)) {
+      throw ArgumentError(
+          'Unsupported locale: $locale. Supported locales: ${_local.keys.join(', ')}');
+    }
     language = locale;
     return HijriCalendar();
   }
@@ -96,7 +102,7 @@ class HijriCalendar {
 
   int getDaysInMonth(int year, int month) {
     int i = _getNewMoonMJDNIndex(year, month);
-    return _ummalquraDataIndex(i)! - _ummalquraDataIndex(i - 1)!;
+    return _ummalquraDataIndex(i) - _ummalquraDataIndex(i - 1);
   }
 
   int _gMod(int n, int m) {
@@ -125,7 +131,7 @@ class HijriCalendar {
     int ii = iy - 1;
     int iln = (ii * 12) + 1 + (im - 1);
     int i = iln - 16260;
-    int mcjdn = id + _ummalquraDataIndex(i - 1)! - 1;
+    int mcjdn = id + _ummalquraDataIndex(i - 1) - 1;
     int cjdn = mcjdn + 2400000;
     return julianToGregorian(cjdn);
   }
@@ -205,7 +211,7 @@ class HijriCalendar {
     // the MCJDN's of the start of the lunations in the Umm al-Qura calendar are stored in 'islamcalendar_dat.js'
     int i;
     for (i = 0; i < ummAlquraDateArray.length; i++) {
-      if (_ummalquraDataIndex(i)! > mcjdn) break;
+      if (_ummalquraDataIndex(i) > mcjdn) break;
     }
 
     // compute and output the Umm al-Qura calendar date
@@ -214,8 +220,8 @@ class HijriCalendar {
     int ii = ((iln - 1) / 12).floor();
     int iy = ii + 1;
     int im = iln - 12 * ii;
-    int id = mcjdn - _ummalquraDataIndex(i - 1)! + 1;
-    int ml = _ummalquraDataIndex(i)! - _ummalquraDataIndex(i - 1)!;
+    int id = mcjdn - _ummalquraDataIndex(i - 1) + 1;
+    int ml = _ummalquraDataIndex(i) - _ummalquraDataIndex(i - 1);
     lengthOfMonth = ml;
     int wd = _gMod(cjdn + 1, 7);
 
@@ -321,14 +327,17 @@ class HijriCalendar {
     adjustments = adj;
   }
 
-  int? _ummalquraDataIndex(int index) {
+  /// Gets the Umm al-Qura data for a specific index with optional adjustments
+  int _ummalquraDataIndex(int index) {
     if (index < 0 || index >= ummAlquraDateArray.length) {
-      throw ArgumentError(
-          "Valid date should be between 1356 AH (14 March 1937 CE) to 1500 AH (16 November 2077 CE)");
+      throw RangeError(
+          "Date index out of range. Valid dates are between 1356 AH (14 March 1937 CE) to 1500 AH (16 November 2077 CE)");
     }
 
-    if (adjustments != null && adjustments!.containsKey(index + 16260)) {
-      return adjustments![index + 16260];
+    // Apply adjustment if available
+    final adjustmentKey = index + 16260;
+    if (adjustments?.containsKey(adjustmentKey) == true) {
+      return adjustments![adjustmentKey]!;
     }
 
     return ummAlquraDateArray[index];
@@ -365,11 +374,22 @@ class HijriCalendar {
     }
   }
 
+  /// Validates a Hijri date with comprehensive checks
   bool validateHijri(int year, int month, int day) {
+    // Check basic ranges
     if (month < 1 || month > 12) return false;
-
     if (day < 1 || day > 30) return false;
-    return true;
+
+    // Check year range based on available data
+    if (year < 1356 || year > 1500) return false;
+
+    // Check if day is valid for the specific month and year
+    try {
+      int daysInMonth = getDaysInMonth(year, month);
+      return day <= daysInMonth;
+    } catch (e) {
+      return false;
+    }
   }
 
   String getLongMonthName() {
@@ -399,5 +419,331 @@ class HijriCalendar {
       d = d < 7 ? d + 1 : 1;
     }
     return calender;
+  }
+
+  /// Gets the current Hijri date as a formatted string
+  static String get currentHijriDate {
+    final today = HijriCalendar.now();
+    return today.fullDate();
+  }
+
+  /// Checks if current year is a leap year (355 days vs 354 days)
+  bool get isLeapYear => lengthOfYear() == 355;
+
+  /// Gets the number of days passed since the beginning of the current Hijri year
+  int get dayOfYear {
+    int days = 0;
+    for (int i = 1; i < hMonth; i++) {
+      days += getDaysInMonth(hYear, i);
+    }
+    return days + hDay;
+  }
+
+  /// Gets the week number in the current year
+  int get weekOfYear {
+    return ((dayOfYear - 1) / 7).floor() + 1;
+  }
+
+  /// Checks if the date falls on a weekend (Friday or Saturday in Islamic calendar)
+  bool get isWeekend => wkDay == 5 || wkDay == 6; // Friday or Saturday
+
+  /// Gets the first day of the current month
+  HijriCalendar get firstDayOfMonth {
+    return HijriCalendar.fromHijri(hYear, hMonth, 1);
+  }
+
+  /// Gets the last day of the current month
+  HijriCalendar get lastDayOfMonth {
+    final daysInMonth = getDaysInMonth(hYear, hMonth);
+    return HijriCalendar.fromHijri(hYear, hMonth, daysInMonth);
+  }
+
+  /// Adds specified number of days to the current date
+  HijriCalendar addDays(int days) {
+    final gregorianDate = hijriToGregorian(hYear, hMonth, hDay);
+    final newGregorianDate = gregorianDate.add(Duration(days: days));
+    return HijriCalendar.fromDate(newGregorianDate);
+  }
+
+  /// Subtracts specified number of days from the current date
+  HijriCalendar subtractDays(int days) {
+    return addDays(-days);
+  }
+
+  /// Adds specified number of months to the current date
+  HijriCalendar addMonths(int months) {
+    int newYear = hYear;
+    int newMonth = hMonth + months;
+
+    while (newMonth > 12) {
+      newMonth -= 12;
+      newYear++;
+    }
+    while (newMonth < 1) {
+      newMonth += 12;
+      newYear--;
+    }
+
+    // Adjust day if it exceeds the days in the new month
+    final daysInNewMonth = getDaysInMonth(newYear, newMonth);
+    final newDay = hDay > daysInNewMonth ? daysInNewMonth : hDay;
+
+    return HijriCalendar.fromHijri(newYear, newMonth, newDay);
+  }
+
+  /// Subtracts specified number of months from the current date
+  HijriCalendar subtractMonths(int months) {
+    return addMonths(-months);
+  }
+
+  /// Adds specified number of years to the current date
+  HijriCalendar addYears(int years) {
+    final newYear = hYear + years;
+    final daysInNewMonth = getDaysInMonth(newYear, hMonth);
+    final newDay = hDay > daysInNewMonth ? daysInNewMonth : hDay;
+
+    return HijriCalendar.fromHijri(newYear, hMonth, newDay);
+  }
+
+  /// Subtracts specified number of years from the current date
+  HijriCalendar subtractYears(int years) {
+    return addYears(-years);
+  }
+
+  /// Calculates the difference in days between this date and another date
+  int differenceInDays(HijriCalendar other) {
+    final thisGregorian = hijriToGregorian(hYear, hMonth, hDay);
+    final otherGregorian =
+        hijriToGregorian(other.hYear, other.hMonth, other.hDay);
+    return thisGregorian.difference(otherGregorian).inDays;
+  }
+
+  /// Calculates the age in years based on current date
+  int ageInYears([HijriCalendar? fromDate]) {
+    final reference = fromDate ?? HijriCalendar.now();
+    int age = reference.hYear - hYear;
+
+    // Adjust if birthday hasn't occurred this year
+    if (reference.hMonth < hMonth ||
+        (reference.hMonth == hMonth && reference.hDay < hDay)) {
+      age--;
+    }
+
+    return age;
+  }
+
+  /// Returns a list of all Hijri dates in the current month
+  List<HijriCalendar> getDatesInMonth() {
+    final daysInMonth = getDaysInMonth(hYear, hMonth);
+    return List.generate(daysInMonth,
+        (index) => HijriCalendar.fromHijri(hYear, hMonth, index + 1));
+  }
+
+  /// Checks if this date is in the same month as another date
+  bool isSameMonth(HijriCalendar other) {
+    return hYear == other.hYear && hMonth == other.hMonth;
+  }
+
+  /// Checks if this date is in the same year as another date
+  bool isSameYear(HijriCalendar other) {
+    return hYear == other.hYear;
+  }
+
+  /// Gets the Hijri date in ISO-like format (yyyy-mm-dd)
+  String get isoFormat => format(hYear, hMonth, hDay, "yyyy-mm-dd");
+
+  /// Creates a copy of this HijriCalendar instance
+  HijriCalendar copy() {
+    return HijriCalendar.fromHijri(hYear, hMonth, hDay);
+  }
+
+  /// Converts to JSON representation
+  Map<String, dynamic> toJson() {
+    return {
+      'year': hYear,
+      'month': hMonth,
+      'day': hDay,
+      'monthName': longMonthName,
+      'dayName': dayWeName,
+      'weekday': wkDay,
+      'lengthOfMonth': lengthOfMonth,
+      'language': language,
+    };
+  }
+
+  /// Creates HijriCalendar from JSON
+  factory HijriCalendar.fromJson(Map<String, dynamic> json) {
+    return HijriCalendar.fromHijri(
+      json['year'] as int,
+      json['month'] as int,
+      json['day'] as int,
+    );
+  }
+
+  /// Equality operator
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is HijriCalendar &&
+        other.hYear == hYear &&
+        other.hMonth == hMonth &&
+        other.hDay == hDay;
+  }
+
+  /// Hash code
+  @override
+  int get hashCode => Object.hash(hYear, hMonth, hDay);
+
+  /// Comparison operators for sorting
+  bool operator <(HijriCalendar other) {
+    return isBefore(other.hYear, other.hMonth, other.hDay);
+  }
+
+  bool operator <=(HijriCalendar other) {
+    return isBefore(other.hYear, other.hMonth, other.hDay) ||
+        isAtSameMomentAs(other.hYear, other.hMonth, other.hDay);
+  }
+
+  bool operator >(HijriCalendar other) {
+    return isAfter(other.hYear, other.hMonth, other.hDay);
+  }
+
+  bool operator >=(HijriCalendar other) {
+    return isAfter(other.hYear, other.hMonth, other.hDay) ||
+        isAtSameMomentAs(other.hYear, other.hMonth, other.hDay);
+  }
+
+  // ======================== Moon Phases Methods ========================
+
+  /// حساب طور القمر للتاريخ الهجري الحالي
+  /// Returns the moon phase information for the current Hijri date
+  MoonPhaseInfo getMoonPhase() {
+    return MoonPhaseCalculator.getMoonPhaseForHijri(this);
+  }
+
+  /// حساب طور القمر للتاريخ الهجري المحدد
+  /// Returns the moon phase information for the specified Hijri date
+  static MoonPhaseInfo getMoonPhaseForDate(int year, int month, int day) {
+    HijriCalendar hijriDate = HijriCalendar.fromHijri(year, month, day);
+    return MoonPhaseCalculator.getMoonPhaseForHijri(hijriDate);
+  }
+
+  /// الحصول على جميع تواريخ البدر في السنة الهجرية الحالية
+  /// Gets all full moon dates in the current Hijri year
+  List<HijriCalendar> getFullMoonDatesThisYear() {
+    return MoonPhaseCalculator.getFullMoonDatesInHijriYear(hYear);
+  }
+
+  /// الحصول على جميع تواريخ البدر في سنة هجرية محددة
+  /// Gets all full moon dates in the specified Hijri year
+  static List<HijriCalendar> getFullMoonDatesInYear(int hijriYear) {
+    return MoonPhaseCalculator.getFullMoonDatesInHijriYear(hijriYear);
+  }
+
+  /// الحصول على جميع تواريخ المحاق في السنة الهجرية الحالية
+  /// Gets all new moon dates in the current Hijri year
+  List<HijriCalendar> getNewMoonDatesThisYear() {
+    return MoonPhaseCalculator.getNewMoonDatesInHijriYear(hYear);
+  }
+
+  /// الحصول على جميع تواريخ المحاق في سنة هجرية محددة
+  /// Gets all new moon dates in the specified Hijri year
+  static List<HijriCalendar> getNewMoonDatesInYear(int hijriYear) {
+    return MoonPhaseCalculator.getNewMoonDatesInHijriYear(hijriYear);
+  }
+
+  /// تحقق من إمكانية رؤية الهلال للتاريخ الحالي
+  /// Checks if the crescent moon is visible for the current date
+  bool isHilalVisible({double minimumAltitude = 10.0}) {
+    DateTime gregorianDate = hijriToGregorian(hYear, hMonth, hDay);
+    return MoonPhaseCalculator.isHilalVisible(gregorianDate,
+        minimumAltitude: minimumAltitude);
+  }
+
+  /// تحقق من إمكانية رؤية الهلال لتاريخ محدد
+  /// Checks if the crescent moon is visible for the specified date
+  static bool isHilalVisibleForDate(int year, int month, int day,
+      {double minimumAltitude = 10.0}) {
+    HijriCalendar hijriDate = HijriCalendar.fromHijri(year, month, day);
+    DateTime gregorianDate = hijriDate.hijriToGregorian(year, month, day);
+    return MoonPhaseCalculator.isHilalVisible(gregorianDate,
+        minimumAltitude: minimumAltitude);
+  }
+
+  /// احصائيات أطوار القمر في الشهر الهجري الحالي
+  /// Gets moon phase statistics for the current Hijri month
+  Map<MoonPhase, int> getMoonPhaseStatisticsThisMonth() {
+    DateTime startDate = hijriToGregorian(hYear, hMonth, 1);
+    int daysInMonth = getDaysInMonth(hYear, hMonth);
+    DateTime endDate = hijriToGregorian(hYear, hMonth, daysInMonth);
+    return MoonPhaseCalculator.getMoonPhaseStatistics(startDate, endDate);
+  }
+
+  /// احصائيات أطوار القمر في شهر هجري محدد
+  /// Gets moon phase statistics for the specified Hijri month
+  static Map<MoonPhase, int> getMoonPhaseStatisticsForMonth(
+      int year, int month) {
+    HijriCalendar hijriDate = HijriCalendar.fromHijri(year, month, 1);
+    DateTime startDate = hijriDate.hijriToGregorian(year, month, 1);
+    int daysInMonth = hijriDate.getDaysInMonth(year, month);
+    DateTime endDate = hijriDate.hijriToGregorian(year, month, daysInMonth);
+    return MoonPhaseCalculator.getMoonPhaseStatistics(startDate, endDate);
+  }
+
+  /// الحصول على اسم طور القمر الحالي
+  /// Gets the current moon phase name in the specified language
+  String getMoonPhaseName({String? language}) {
+    MoonPhaseInfo moonInfo = getMoonPhase();
+    language ??= HijriCalendar.language;
+    return MoonPhaseCalculator.getPhaseName(moonInfo.phase, language);
+  }
+
+  /// تحقق من كون التاريخ الحالي بدر كامل
+  /// Checks if the current date is a full moon
+  bool isFullMoon() {
+    MoonPhaseInfo moonInfo = getMoonPhase();
+    return moonInfo.phase == MoonPhase.fullMoon;
+  }
+
+  /// تحقق من كون التاريخ الحالي محاق
+  /// Checks if the current date is a new moon
+  bool isNewMoon() {
+    MoonPhaseInfo moonInfo = getMoonPhase();
+    return moonInfo.phase == MoonPhase.newMoon;
+  }
+
+  /// حساب عدد الأيام حتى البدر التالي
+  /// Calculates days until the next full moon
+  int daysUntilNextFullMoon() {
+    MoonPhaseInfo moonInfo = getMoonPhase();
+    DateTime currentGregorian = hijriToGregorian(hYear, hMonth, hDay);
+    return moonInfo.nextFullMoon.difference(currentGregorian).inDays;
+  }
+
+  /// حساب عدد الأيام حتى المحاق التالي
+  /// Calculates days until the next new moon
+  int daysUntilNextNewMoon() {
+    MoonPhaseInfo moonInfo = getMoonPhase();
+    DateTime currentGregorian = hijriToGregorian(hYear, hMonth, hDay);
+    return moonInfo.nextNewMoon.difference(currentGregorian).inDays;
+  }
+
+  /// معلومات مفصلة عن القمر للتاريخ الحالي
+  /// Detailed moon information for the current date
+  String moonInfo({String? language}) {
+    MoonPhaseInfo moonInfo = getMoonPhase();
+    language ??= HijriCalendar.language;
+
+    String phaseName =
+        MoonPhaseCalculator.getPhaseName(moonInfo.phase, language);
+    String illumination =
+        '${(moonInfo.illumination * 100).toStringAsFixed(1)}%';
+    String age = '${moonInfo.age.toStringAsFixed(1)}';
+
+    if (language == 'ar') {
+      return 'طور القمر: $phaseName، نسبة الإضاءة: $illumination، العمر: $age يوم';
+    } else {
+      return 'Moon Phase: $phaseName, Illumination: $illumination, Age: $age days';
+    }
   }
 }

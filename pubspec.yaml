@@ -1,12 +1,27 @@
 name: hijri
 description: >
-  Convert between Hijri Calendar and Gregorian Calendar date support Arabic and English Local.
-version: 3.0.1
+  Enhanced Hijri Calendar library with comprehensive date operations, Islamic events, 
+  multi-language support, and advanced utilities for Arabic, English, and Turkish locales.
+version: 1.0.0
 homepage: https://github.com/alheekmahlib/hijri_date
+repository: https://github.com/alheekmahlib/hijri_date
+issue_tracker: https://github.com/alheekmahlib/hijri_date/issues
+documentation: https://github.com/alheekmahlib/hijri_date/blob/master/README.md
 
 environment:
   sdk: '>=3.6.1 <4.0.0'
 
+dependencies:
+  # No external dependencies - pure Dart implementation
 
 dev_dependencies:
-  test: "^1.14.3"
+  test: ^1.24.0
+  lints: ^3.0.0
+
+topics:
+  - hijri
+  - islamic-calendar  
+  - date-conversion
+  - arabic
+  - islamic-events
+  - calendar
