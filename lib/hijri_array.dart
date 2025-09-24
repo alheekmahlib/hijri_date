@@ -148,6 +148,266 @@ const Map<int, String> trShortWdNames = {
   6: "Cumartesi"
 };
 
+// Indonesian month names - أسماء الأشهر الإندونيسية
+const Map<int, String> idMonthNames = {
+  1: 'Muharram',
+  2: 'Safar',
+  3: 'Rabiul Awal',
+  4: 'Rabiul Akhir',
+  5: 'Jumadil Awal',
+  6: 'Jumadil Akhir',
+  7: 'Rajab',
+  8: 'Sya\'ban',
+  9: 'Ramadan',
+  10: 'Syawal',
+  11: 'Dzulqa\'dah',
+  12: 'Dzulhijjah'
+};
+
+const Map<int, String> idMonthShortNames = {
+  1: 'Muh',
+  2: 'Saf',
+  3: 'Rab1',
+  4: 'Rab2',
+  5: 'Jum1',
+  6: 'Jum2',
+  7: 'Raj',
+  8: 'Sya\'',
+  9: 'Ram',
+  10: 'Syaw',
+  11: 'DzuQ',
+  12: 'DzuH'
+};
+
+// Indonesian weekday names - أسماء أيام الأسبوع الإندونيسية
+const Map<int, String> idWkNames = {
+  7: "Ahad",
+  1: "Senin",
+  2: "Selasa",
+  3: "Rabu",
+  4: "Kamis",
+  5: "Jum'at",
+  6: "Sabtu"
+};
+
+const Map<int, String> idShortWdNames = {
+  7: "Aha",
+  1: "Sen",
+  2: "Sel",
+  3: "Rab",
+  4: "Kam",
+  5: "Jum",
+  6: "Sab"
+};
+
+// Malay month names - أسماء الأشهر الماليزية
+const Map<int, String> msMonthNames = {
+  1: 'Muharram',
+  2: 'Safar',
+  3: 'Rabiulawal',
+  4: 'Rabiulakhir',
+  5: 'Jamadilawal',
+  6: 'Jamadilakhir',
+  7: 'Rajab',
+  8: 'Syaaban',
+  9: 'Ramadan',
+  10: 'Syawal',
+  11: 'Zulkaedah',
+  12: 'Zulhijjah'
+};
+
+const Map<int, String> msMonthShortNames = {
+  1: 'Muh',
+  2: 'Saf',
+  3: 'Raw',
+  4: 'Rak',
+  5: 'Jaw',
+  6: 'Jak',
+  7: 'Raj',
+  8: 'Sya',
+  9: 'Ram',
+  10: 'Syw',
+  11: 'Zka',
+  12: 'Zhi'
+};
+
+// Malay weekday names - أسماء أيام الأسبوع الماليزية
+const Map<int, String> msWkNames = {
+  7: "Ahad",
+  1: "Isnin",
+  2: "Selasa",
+  3: "Rabu",
+  4: "Khamis",
+  5: "Jumaat",
+  6: "Sabtu"
+};
+
+const Map<int, String> msShortWdNames = {
+  7: "Ahd",
+  1: "Isn",
+  2: "Sel",
+  3: "Rab",
+  4: "Kha",
+  5: "Jum",
+  6: "Sab"
+};
+
+// Filipino month names - أسماء الأشهر الفلبينية
+const Map<int, String> filMonthNames = {
+  1: 'Muharram',
+  2: 'Safar',
+  3: 'Rabi\' al-awwal',
+  4: 'Rabi\' al-thani',
+  5: 'Jumada al-awwal',
+  6: 'Jumada al-thani',
+  7: 'Rajab',
+  8: 'Sha\'ban',
+  9: 'Ramadan',
+  10: 'Shawwal',
+  11: 'Dhu al-Qi\'dah',
+  12: 'Dhu al-Hijjah'
+};
+
+const Map<int, String> filMonthShortNames = {
+  1: 'Muh',
+  2: 'Saf',
+  3: 'Rab1',
+  4: 'Rab2',
+  5: 'Jum1',
+  6: 'Jum2',
+  7: 'Raj',
+  8: 'Sha',
+  9: 'Ram',
+  10: 'Shaw',
+  11: 'DhuQ',
+  12: 'DhuH'
+};
+
+// Filipino weekday names - أسماء أيام الأسبوع الفلبينية
+const Map<int, String> filWkNames = {
+  7: "Linggo",
+  1: "Lunes",
+  2: "Martes",
+  3: "Miyerkules",
+  4: "Huwebes",
+  5: "Biyernes",
+  6: "Sabado"
+};
+
+const Map<int, String> filShortWdNames = {
+  7: "Lin",
+  1: "Lun",
+  2: "Mar",
+  3: "Miy",
+  4: "Huw",
+  5: "Biy",
+  6: "Sab"
+};
+
+// Bengali month names - أسماء الأشهر البنغالية
+const Map<int, String> bnMonthNames = {
+  1: 'মুহাররম',
+  2: 'সফর',
+  3: 'রবিউল আউয়াল',
+  4: 'রবিউস সানি',
+  5: 'জুমাদাল উলা',
+  6: 'জুমাদাস সানি',
+  7: 'রজব',
+  8: 'শাবান',
+  9: 'রমজান',
+  10: 'শাওয়াল',
+  11: 'জিলকদ',
+  12: 'জিলহজ'
+};
+
+const Map<int, String> bnMonthShortNames = {
+  1: 'মুহা',
+  2: 'সফর',
+  3: 'রবি১',
+  4: 'রবি২',
+  5: 'জুমা১',
+  6: 'জুমা২',
+  7: 'রজব',
+  8: 'শাবা',
+  9: 'রমজা',
+  10: 'শাওয়া',
+  11: 'জিলক',
+  12: 'জিলহ'
+};
+
+// Bengali weekday names - أسماء أيام الأسبوع البنغالية
+const Map<int, String> bnWkNames = {
+  7: "রবিবার",
+  1: "সোমবার",
+  2: "মঙ্গলবার",
+  3: "বুধবার",
+  4: "বৃহস্পতিবার",
+  5: "শুক্রবার",
+  6: "শনিবার"
+};
+
+const Map<int, String> bnShortWdNames = {
+  7: "রবি",
+  1: "সোম",
+  2: "মঙ্গল",
+  3: "বুধ",
+  4: "বৃহ",
+  5: "শুক্র",
+  6: "শনি"
+};
+
+// Urdu month names - أسماء الأشهر الأردية
+const Map<int, String> urMonthNames = {
+  1: 'محرم',
+  2: 'صفر',
+  3: 'ربیع الاول',
+  4: 'ربیع الثانی',
+  5: 'جمادی الاول',
+  6: 'جمادی الثانی',
+  7: 'رجب',
+  8: 'شعبان',
+  9: 'رمضان',
+  10: 'شوال',
+  11: 'ذوالقعدہ',
+  12: 'ذوالحجہ'
+};
+
+const Map<int, String> urMonthShortNames = {
+  1: 'محرم',
+  2: 'صفر',
+  3: 'ربیع١',
+  4: 'ربیع٢',
+  5: 'جما١',
+  6: 'جما٢',
+  7: 'رجب',
+  8: 'شعبا',
+  9: 'رمضا',
+  10: 'شوال',
+  11: 'ذالق',
+  12: 'ذالح'
+};
+
+// Urdu weekday names - أسماء أيام الأسبوع الأردية
+const Map<int, String> urWkNames = {
+  7: "اتوار",
+  1: "پیر",
+  2: "منگل",
+  3: "بدھ",
+  4: "جمعرات",
+  5: "جمعہ",
+  6: "ہفتہ"
+};
+
+const Map<int, String> urShortWdNames = {
+  7: "اتو",
+  1: "پیر",
+  2: "منگ",
+  3: "بدھ",
+  4: "جمع",
+  5: "جمع",
+  6: "ہفت"
+};
+
 const List<int> ummAlquraDateArray = [
   28607,
   28636,

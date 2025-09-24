@@ -35,6 +35,36 @@ class HijriCalendar {
       'days': trWkNames,
       'short_days': trShortWdNames
     },
+    'id': {
+      'long': idMonthNames,
+      'short': idMonthShortNames,
+      'days': idWkNames,
+      'short_days': idShortWdNames
+    },
+    'ms': {
+      'long': msMonthNames,
+      'short': msMonthShortNames,
+      'days': msWkNames,
+      'short_days': msShortWdNames
+    },
+    'fil': {
+      'long': filMonthNames,
+      'short': filMonthShortNames,
+      'days': filWkNames,
+      'short_days': filShortWdNames
+    },
+    'bn': {
+      'long': bnMonthNames,
+      'short': bnMonthShortNames,
+      'days': bnWkNames,
+      'short_days': bnShortWdNames
+    },
+    'ur': {
+      'long': urMonthNames,
+      'short': urMonthShortNames,
+      'days': urWkNames,
+      'short_days': urShortWdNames
+    },
   };
 
   /// Sets the language for localization
@@ -246,19 +276,11 @@ class HijriCalendar {
   String format(year, month, day, format) {
     String newFormat = format;
 
-    String dayString;
-    String monthString;
-    String yearString;
-
-    if (language == 'ar') {
-      dayString = DigitsConverter.convertWesternNumberToEastern(day);
-      monthString = DigitsConverter.convertWesternNumberToEastern(month);
-      yearString = DigitsConverter.convertWesternNumberToEastern(year);
-    } else {
-      dayString = day.toString();
-      monthString = month.toString();
-      yearString = year.toString();
-    }
+    // Convert numbers according to current language
+    // تحويل الأرقام حسب اللغة الحالية
+    String dayString = DigitsConverter.convertNumberToLocale(day, language);
+    String monthString = DigitsConverter.convertNumberToLocale(month, language);
+    String yearString = DigitsConverter.convertNumberToLocale(year, language);
 
     if (newFormat.contains("dd")) {
       newFormat = newFormat.replaceFirst("dd", dayString);
