@@ -192,7 +192,10 @@ class MoonPhaseCalculator {
   /// حساب طور القمر للتاريخ الهجري
   static MoonPhaseInfo getMoonPhaseForHijri(HijriDate hijriDate) {
     DateTime gregorianDate = hijriDate.hijriToGregorian(
-        hijriDate.hYear, hijriDate.hMonth, hijriDate.hDay);
+      hijriDate.hYear,
+      hijriDate.hMonth,
+      hijriDate.hDay,
+    );
     return getMoonPhase(gregorianDate);
   }
 

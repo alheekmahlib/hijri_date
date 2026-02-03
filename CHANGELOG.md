@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+- ✨ **NEW:** MoonPhaseWidget for visual moon phase rendering with a geometric mask.
+- ✨ **NEW:** SVG assets for the moon with an optional background.
+- ➕ **ADD:** flutter_svg dependency for SVG rendering in Flutter.
+
 ## 1.0.0
 - ✨ **NEW:** Complete astronomical moon phase calculation system.
 - ✨ **NEW:** 8-language support with localized numerals (Arabic, English, Turkish, Indonesian, Malay, Filipino, Bengali, Urdu).

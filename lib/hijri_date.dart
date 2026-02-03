@@ -155,7 +155,7 @@ class HijriDate {
     return total;
   }
 
-  DateTime hijriToGregorian(year, month, day) {
+  DateTime hijriToGregorian(int year, int month, int day) {
     int iy = year;
     int im = month;
     int id = day;
@@ -167,7 +167,7 @@ class HijriDate {
     return julianToGregorian(cjdn);
   }
 
-  DateTime julianToGregorian(julianDate) {
+  DateTime julianToGregorian(int julianDate) {
     //source from: http://keith-wood.name/calendars.html
     int z = (julianDate + 0.5).floor();
     int a = ((z - 1867216.25) / 36524.25).floor();
@@ -274,7 +274,7 @@ class HijriDate {
     return this.format(this.hYear, this.hMonth, this.hDay, format);
   }
 
-  String format(year, month, day, format) {
+  String format(int year, int month, int day, String format) {
     String newFormat = format;
 
     // Convert numbers according to current language

@@ -1,25 +1,67 @@
-# 🌙 Hijri Date — Hijri Calendar & Moon Phases Library
+# 🌙 Hijri Date — Hijri Calendar & Moon Phases Library 
+<p align="center">
+<img src="https://raw.githubusercontent.com/alheekmahlib/data/refs/heads/main/packages/hijri_date/banner.png" width="500"/>
+</p>
 
-[![Pub Version](https://img.shields.io/pub/v/hijri_date)](https://pub.dev/packages/hijri_date)
-[![GitHub Stars](https://img.shields.io/github/stars/alheekmahlib/hijri_date)](https://github.com/alheekmahlib/hijri_date/stargazers)
-[![Dart SDK](https://img.shields.io/badge/Dart-3.6+-blue.svg)](https://dart.dev)
+<!-- الصف الأول -->
+<p align="center">
+  <a href="https://pub.dev/packages/hijri_date">
+    <img alt="pub package" src="https://img.shields.io/pub/v/hijri_date.svg?color=2cacbf&labelColor=145261" />
+  </a>
+  <a href="https://pub.dev/packages/hijri_date/score">
+    <img alt="pub points" src="https://img.shields.io/pub/points/hijri_date?color=2cacbf&labelColor=145261" />
+  </a>
+  <a href="https://pub.dev/packages/hijri_date/score">
+    <img alt="likes" src="https://img.shields.io/pub/likes/hijri_date?color=2cacbf&labelColor=145261" />
+  </a>
+  <a href="https://pub.dev/packages/hijri_date/score">
+    <img alt="Pub Downloads" src="https://img.shields.io/pub/dm/hijri_date?color=2cacbf&labelColor=145261" />
+  </a>
+  <a href="LICENSE">
+    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-2cacbf.svg?labelColor=145261" />
+  </a>
+</p>
+
+<!-- الصف الثاني -->
+<p align="center">
+  <a href="https://flutter.dev/">
+    <img alt="Web" src="https://img.shields.io/badge/Web-145261?logo=google-chrome&logoColor=white" />
+  </a>
+  <a href="https://flutter.dev/">
+    <img alt="Windows" src="https://img.shields.io/badge/Windows-145261?logo=Windows&logoColor=white" />
+  </a>
+  <a href="https://flutter.dev/">
+    <img alt="macOS" src="https://img.shields.io/badge/macOS-145261?logo=apple&logoColor=white" />
+  </a>
+  <a href="https://flutter.dev/">
+    <img alt="Android" src="https://img.shields.io/badge/Android-145261?logo=android&logoColor=white" />
+  </a>
+  <a href="https://flutter.dev/">
+    <img alt="iOS" src="https://img.shields.io/badge/iOS-145261?logo=ios&logoStyle=bold&logoColor=white" />
+  </a>
+</p>
 
 Professional Dart/Flutter library for the Islamic (Hijri, Umm al-Qura) calendar: accurate Hijri↔Gregorian conversion, moon phases, Islamic events with authentic hadiths, multi-language support with localized numerals, and robust calendar utilities. Each section provides concise, non-duplicated examples.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/alheekmahlib/data/refs/heads/main/packages/hijri_date/Screenshot.png" width="320"/>
+</p>
 
 ## Contents
 
 <p>
-  <a href="#features"><img alt="Features" src="https://img.shields.io/badge/-Features-0b72b9?style=for-the-badge" /></a>
-  <a href="#installation"><img alt="Installation" src="https://img.shields.io/badge/-Installation-0b72b9?style=for-the-badge" /></a>
-  <a href="#quick-start"><img alt="Quick Start" src="https://img.shields.io/badge/-Quick%20Start-0b72b9?style=for-the-badge" /></a>
-  <a href="#core-concepts"><img alt="Core Concepts" src="https://img.shields.io/badge/-Core%20Concepts-0b72b9?style=for-the-badge" /></a>
-  <a href="#formatting"><img alt="Formatting" src="https://img.shields.io/badge/-Formatting-0b72b9?style=for-the-badge" /></a>
-  <a href="#date-operations"><img alt="Date Operations" src="https://img.shields.io/badge/-Date%20Operations-0b72b9?style=for-the-badge" /></a>
-  <a href="#calendar-utilities"><img alt="Calendar Utilities" src="https://img.shields.io/badge/-Calendar%20Utilities-0b72b9?style=for-the-badge" /></a>
-  <a href="#moon-phases"><img alt="Moon Phases" src="https://img.shields.io/badge/-Moon%20Phases-0b72b9?style=for-the-badge" /></a>
-  <a href="#islamic-events"><img alt="Islamic Events" src="https://img.shields.io/badge/-Islamic%20Events-0b72b9?style=for-the-badge" /></a>
-  <a href="#localization--numerals"><img alt="Localization & Numerals" src="https://img.shields.io/badge/-Localization%20%26%20Numerals-0b72b9?style=for-the-badge" /></a>
-  <a href="#compact-example"><img alt="Compact Example" src="https://img.shields.io/badge/-Compact%20Example-0b72b9?style=for-the-badge" /></a>
+  <a href="#features"><img alt="Features" src="https://img.shields.io/badge/-Features-145261?style=for-the-badge" /></a>
+  <a href="#installation"><img alt="Installation" src="https://img.shields.io/badge/-Installation-145261?style=for-the-badge" /></a>
+  <a href="#quick-start"><img alt="Quick Start" src="https://img.shields.io/badge/-Quick%20Start-145261?style=for-the-badge" /></a>
+  <a href="#core-concepts"><img alt="Core Concepts" src="https://img.shields.io/badge/-Core%20Concepts-145261?style=for-the-badge" /></a>
+  <a href="#formatting"><img alt="Formatting" src="https://img.shields.io/badge/-Formatting-145261?style=for-the-badge" /></a>
+  <a href="#date-operations"><img alt="Date Operations" src="https://img.shields.io/badge/-Date%20Operations-145261?style=for-the-badge" /></a>
+  <a href="#calendar-utilities"><img alt="Calendar Utilities" src="https://img.shields.io/badge/-Calendar%20Utilities-145261?style=for-the-badge" /></a>
+  <a href="#moon-phases"><img alt="Moon Phases" src="https://img.shields.io/badge/-Moon%20Phases-145261?style=for-the-badge" /></a>
+  <a href="#moon-phase-widget"><img alt="Moon Phase Widget" src="https://img.shields.io/badge/-Moon%20Phase%20Widget-145261?style=for-the-badge" /></a>
+  <a href="#islamic-events"><img alt="Islamic Events" src="https://img.shields.io/badge/-Islamic%20Events-145261?style=for-the-badge" /></a>
+  <a href="#localization--numerals"><img alt="Localization & Numerals" src="https://img.shields.io/badge/-Localization%20%26%20Numerals-145261?style=for-the-badge" /></a>
+  <a href="#compact-example"><img alt="Compact Example" src="https://img.shields.io/badge/-Compact%20Example-145261?style=for-the-badge" /></a>
 </p>
 
 ## Features
@@ -40,7 +82,7 @@ Add to your pubspec.yaml:
 
 ```yaml
 dependencies:
-  hijri_date: ^1.0.0
+  hijri_date: ^1.0.1
 ```
 
 Single entry import:
@@ -166,6 +208,29 @@ final fullMoons = HijriDate.getFullMoonDatesInYear(1445);
 final newMoons  = HijriDate.getNewMoonDatesInYear(1445);
 
 final stats = HijriDate.getMoonPhaseStatisticsForMonth(1445, 9); // {phase -> days}
+```
+
+## Moon Phase Widget
+
+ويدجت Flutter لعرض طور القمر بصريًا باستخدام SVG وقناع هندسي، مع دعم خلفية اختيارية.
+
+**الأصول الافتراضية داخل الحزمة:**
+- assets/moon.svg
+- assets/moon_background.svg (اختياري)
+
+```dart
+import 'package:hijri_date/hijri.dart';
+
+final moonInfo = HijriDate.now().getMoonPhase();
+
+MoonPhaseWidget(
+  moonInfo: moonInfo,
+  size: 160,
+  overlayColor: Colors.black,
+  overlayOpacity: 0.35,
+  backgroundAssetPath: 'assets/moon_background.svg', // اختياري
+  moonAssetPath: 'assets/moon.svg',
+);
 ```
 
 ## Islamic Events
