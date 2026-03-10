@@ -194,6 +194,34 @@ final copy = HijriDate.fromJson(json);
 print(copy.isoFormat);                          // yyyy-mm-dd
 ```
 
+## Horizontal Week Calendar
+
+ويدجت تقويم أفقي أسبوعي يدعم التواريخ الهجرية مع إمكانية إظهار اليوم الميلادي أسفل اليوم الهجري.
+يتطلب Flutter 3.22.0 أو أحدث بسبب CarouselView.
+
+```dart
+import 'package:hijri_date/hijri.dart';
+
+final hijriMin = HijriDate.fromHijri(1440, 1, 1);
+final hijriMax = HijriDate.fromHijri(1460, 12, 30);
+final hijriInitial = HijriDate.fromDate(DateTime(2024, 3, 10));
+
+HorizontalWeekCalendar(
+  minDate: DateTime(2020, 1, 1),
+  maxDate: DateTime(2030, 12, 31),
+  initialDate: DateTime(2024, 3, 10),
+  useHijriDates: true,
+  hijriMinDate: hijriMin,
+  hijriMaxDate: hijriMax,
+  hijriInitialDate: hijriInitial,
+  showGregorianUnderHijri: true,
+  gregorianDayFormat: 'd',
+  translateNumbers: true,
+  languageCode: 'ar',
+  onDateChange: (date) => debugPrint('Selected: $date'),
+);
+```
+
 ## Moon Phases
 
 ```dart

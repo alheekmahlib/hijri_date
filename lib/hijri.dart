@@ -44,6 +44,8 @@ export 'hijri_array.dart';
 export 'hijri_date.dart';
 // Utilities and helper functions
 export 'hijri_utils.dart';
+// Horizontal week calendar widget
+export 'horizontal_week_calendar.dart';
 // Moon phase widget
 export 'moon_phase_widget.dart';
 // Moon phases and astronomical calculations
