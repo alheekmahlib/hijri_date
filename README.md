@@ -57,6 +57,7 @@ Professional Dart/Flutter library for the Islamic (Hijri, Umm al-Qura) calendar:
   <a href="#formatting"><img alt="Formatting" src="https://img.shields.io/badge/-Formatting-145261?style=for-the-badge" /></a>
   <a href="#date-operations"><img alt="Date Operations" src="https://img.shields.io/badge/-Date%20Operations-145261?style=for-the-badge" /></a>
   <a href="#calendar-utilities"><img alt="Calendar Utilities" src="https://img.shields.io/badge/-Calendar%20Utilities-145261?style=for-the-badge" /></a>
+  <a href="#horizontal-week-calendar"><img alt="Horizontal Week Calendar" src="https://img.shields.io/badge/-Horizontal%20Week%20Calendar-145261?style=for-the-badge" /></a>
   <a href="#moon-phases"><img alt="Moon Phases" src="https://img.shields.io/badge/-Moon%20Phases-145261?style=for-the-badge" /></a>
   <a href="#moon-phase-widget"><img alt="Moon Phase Widget" src="https://img.shields.io/badge/-Moon%20Phase%20Widget-145261?style=for-the-badge" /></a>
   <a href="#islamic-events"><img alt="Islamic Events" src="https://img.shields.io/badge/-Islamic%20Events-145261?style=for-the-badge" /></a>
@@ -82,7 +83,7 @@ Add to your pubspec.yaml:
 
 ```yaml
 dependencies:
-  hijri_date: ^1.0.1
+  hijri_date: ^1.1.0
 ```
 
 Single entry import:
@@ -196,8 +197,6 @@ print(copy.isoFormat);                          // yyyy-mm-dd
 
 ## Horizontal Week Calendar
 
-ويدجت تقويم أفقي أسبوعي يدعم التواريخ الهجرية مع إمكانية إظهار اليوم الميلادي أسفل اليوم الهجري.
-يتطلب Flutter 3.22.0 أو أحدث بسبب CarouselView.
 
 ```dart
 import 'package:hijri_date/hijri.dart';

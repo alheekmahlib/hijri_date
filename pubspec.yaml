@@ -3,7 +3,7 @@ description: >
   Enhanced Hijri Calendar library with comprehensive date operations, Islamic
   events,  multi-language support, and advanced utilities for Arabic, English,
   and Turkish locales.
-version: 1.0.2
+version: 1.1.0
 homepage: https://github.com/alheekmahlib/hijri_date
 repository: https://github.com/alheekmahlib/hijri_date
 issue_tracker: https://github.com/alheekmahlib/hijri_date/issues
@@ -16,7 +16,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^2.2.3
+  flutter_svg: ^2.2.4
   intl: ^0.20.2
 
 dev_dependencies:

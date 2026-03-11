@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.2
+## 1.1.1
 - ✨ **NEW:** HorizontalWeekCalendar now uses Flutter's CarouselView with the same layout behavior.
 - ✨ **NEW:** Optional Gregorian day display under Hijri day in HorizontalWeekCalendar.
 - 🔧 **ENHANCED:** Documentation and example updated for the horizontal calendar.
