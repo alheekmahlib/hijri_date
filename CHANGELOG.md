@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+- ✨ **NEW:** HorizontalWeekCalendar now uses Flutter's CarouselView with the same layout behavior.
+- ✨ **NEW:** Optional Gregorian day display under Hijri day in HorizontalWeekCalendar.
+- 🔧 **ENHANCED:** Documentation and example updated for the horizontal calendar.
+
 ## 1.0.1
 - ✨ **NEW:** MoonPhaseWidget for visual moon phase rendering with a geometric mask.
 - ✨ **NEW:** SVG assets for the moon with an optional background.

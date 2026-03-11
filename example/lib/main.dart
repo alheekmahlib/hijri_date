@@ -34,6 +34,11 @@ class HijriExamplePage extends StatelessWidget {
     final moonPhase = today.getMoonPhaseName();
     final moonInfo = today.getMoonPhase();
     final events = IslamicEventsManager.getTodaysEvents();
+    final hijriInitial = HijriDate.now();
+    final hijriMin = HijriDate.fromHijri(
+        hijriInitial.hYear, hijriInitial.hMonth, hijriInitial.hDay - 7);
+    final hijriMax = HijriDate.fromHijri(
+        hijriInitial.hYear, hijriInitial.hMonth, hijriInitial.hDay + 7);
 
     final theme = Theme.of(context);
     final titleStyle = theme.textTheme.titleLarge;
@@ -69,7 +74,6 @@ class HijriExamplePage extends StatelessWidget {
                 style: subtitleStyle,
               ),
               const SizedBox(height: 16),
-
               Card(
                 elevation: 0,
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
@@ -91,7 +95,34 @@ class HijriExamplePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-
+              Card(
+                elevation: 0,
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('التقويم الأسبوعي', style: titleStyle),
+                      const SizedBox(height: 12),
+                      HorizontalWeekCalendar(
+                        minDate: DateTime.now().subtract(Duration(days: 7)),
+                        maxDate: DateTime.now().add(Duration(days: 7)),
+                        initialDate: DateTime.now(),
+                        useHijriDates: true,
+                        hijriMinDate: hijriMin,
+                        hijriMaxDate: hijriMax,
+                        hijriInitialDate: hijriInitial,
+                        showGregorianUnderHijri: true,
+                        gregorianDayFormat: 'd',
+                        translateNumbers: true,
+                        languageCode: 'ar',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Card(
                 elevation: 0,
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
@@ -133,7 +164,6 @@ class HijriExamplePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-
               Card(
                 elevation: 0,
                 color: theme.colorScheme.primary.withValues(alpha: 0.1),
