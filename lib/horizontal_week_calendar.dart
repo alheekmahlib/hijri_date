@@ -424,6 +424,30 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
     super.initState();
   }
 
+  @override
+  void didUpdateWidget(HorizontalWeekCalendar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    bool datesChanged = false;
+
+    if (widget.useHijriDates) {
+      datesChanged = oldWidget.hijriInitialDate?.hDay !=
+              widget.hijriInitialDate?.hDay ||
+          oldWidget.hijriInitialDate?.hMonth !=
+              widget.hijriInitialDate?.hMonth ||
+          oldWidget.hijriInitialDate?.hYear != widget.hijriInitialDate?.hYear;
+    } else {
+      datesChanged = oldWidget.initialDate != widget.initialDate;
+    }
+
+    if (datesChanged) {
+      currentWeek.clear();
+      listOfWeeks.clear();
+      currentWeekIndex = 0;
+      initCalender();
+    }
+  }
+
   DateTime getDate(DateTime d) => DateTime(d.year, d.month, d.day);
 
   /// Get the effective initial date based on calendar type
