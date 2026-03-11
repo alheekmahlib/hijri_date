@@ -307,6 +307,7 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
   final int _initialPage = 1;
   int _lastLeadingIndex = 1;
   double _cachedItemExtent = 0;
+  int _hijriDayOffset = 0;
 
   DateTime today = DateTime.now();
   DateTime selectedDate = DateTime.now();
@@ -316,12 +317,39 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
   List<List<DateTime>> listOfWeeks = [];
 
   HijriDate dateTimeToHijri(DateTime date) {
+    final effectiveDate = _hijriDayOffset != 0
+        ? date.add(Duration(days: _hijriDayOffset))
+        : date;
     final hijri = HijriDate();
     if (widget.useHijriDates && widget.hijriInitialDate?.adjustments != null) {
       hijri.setAdjustments(widget.hijriInitialDate!.adjustments!);
     }
-    hijri.gregorianToHijri(date.year, date.month, date.day);
+    hijri.gregorianToHijri(effectiveDate.year, effectiveDate.month, effectiveDate.day);
     return hijri;
+  }
+
+  void _calculateHijriOffset() {
+    if (widget.useHijriDates && widget.hijriInitialDate != null) {
+      final initDate = DateTime(
+        widget.initialDate.year,
+        widget.initialDate.month,
+        widget.initialDate.day,
+      );
+      final hijriGregorian = widget.hijriInitialDate!.hijriToGregorian(
+        widget.hijriInitialDate!.hYear,
+        widget.hijriInitialDate!.hMonth,
+        widget.hijriInitialDate!.hDay,
+      );
+      final standardHijri = HijriDate.fromDate(initDate);
+      final standardGregorian = standardHijri.hijriToGregorian(
+        standardHijri.hYear,
+        standardHijri.hMonth,
+        standardHijri.hDay,
+      );
+      _hijriDayOffset = hijriGregorian.difference(standardGregorian).inDays;
+    } else {
+      _hijriDayOffset = 0;
+    }
   }
 
   // Get day index based on week start from
@@ -426,6 +454,7 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
     carouselController = CarouselController(initialItem: _initialPage);
     _lastLeadingIndex = _initialPage;
     initCalender();
+    _calculateHijriOffset();
     super.initState();
   }
 
@@ -450,6 +479,7 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
           oldWidget.hijriInitialDate?.adjustments !=
               widget.hijriInitialDate?.adjustments;
       if (hijriChanged) {
+        _calculateHijriOffset();
         setState(() {});
       }
     }
