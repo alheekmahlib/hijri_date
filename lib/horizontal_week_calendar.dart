@@ -316,7 +316,12 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
   List<List<DateTime>> listOfWeeks = [];
 
   HijriDate dateTimeToHijri(DateTime date) {
-    return HijriDate.fromDate(date);
+    final hijri = HijriDate();
+    if (widget.useHijriDates && widget.hijriInitialDate?.adjustments != null) {
+      hijri.setAdjustments(widget.hijriInitialDate!.adjustments!);
+    }
+    hijri.gregorianToHijri(date.year, date.month, date.day);
+    return hijri;
   }
 
   // Get day index based on week start from
@@ -428,23 +433,25 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
   void didUpdateWidget(HorizontalWeekCalendar oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    bool datesChanged = false;
-
-    if (widget.useHijriDates) {
-      datesChanged = oldWidget.hijriInitialDate?.hDay !=
-              widget.hijriInitialDate?.hDay ||
-          oldWidget.hijriInitialDate?.hMonth !=
-              widget.hijriInitialDate?.hMonth ||
-          oldWidget.hijriInitialDate?.hYear != widget.hijriInitialDate?.hYear;
-    } else {
-      datesChanged = oldWidget.initialDate != widget.initialDate;
-    }
-
-    if (datesChanged) {
+    if (oldWidget.initialDate != widget.initialDate) {
       currentWeek.clear();
       listOfWeeks.clear();
       currentWeekIndex = 0;
       initCalender();
+      return;
+    }
+
+    if (widget.useHijriDates) {
+      final bool hijriChanged = oldWidget.hijriInitialDate?.hDay !=
+              widget.hijriInitialDate?.hDay ||
+          oldWidget.hijriInitialDate?.hMonth !=
+              widget.hijriInitialDate?.hMonth ||
+          oldWidget.hijriInitialDate?.hYear != widget.hijriInitialDate?.hYear ||
+          oldWidget.hijriInitialDate?.adjustments !=
+              widget.hijriInitialDate?.adjustments;
+      if (hijriChanged) {
+        setState(() {});
+      }
     }
   }
 
@@ -452,37 +459,16 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
 
   /// Get the effective initial date based on calendar type
   DateTime getEffectiveInitialDate() {
-    if (widget.useHijriDates) {
-      return widget.hijriInitialDate!.hijriToGregorian(
-        widget.hijriInitialDate!.hYear,
-        widget.hijriInitialDate!.hMonth,
-        widget.hijriInitialDate!.hDay,
-      );
-    }
     return widget.initialDate;
   }
 
   /// Get the effective min date based on calendar type
   DateTime getEffectiveMinDate() {
-    if (widget.useHijriDates) {
-      return widget.hijriMinDate!.hijriToGregorian(
-        widget.hijriMinDate!.hYear,
-        widget.hijriMinDate!.hMonth,
-        widget.hijriMinDate!.hDay,
-      );
-    }
     return widget.minDate;
   }
 
   /// Get the effective max date based on calendar type
   DateTime getEffectiveMaxDate() {
-    if (widget.useHijriDates) {
-      return widget.hijriMaxDate!.hijriToGregorian(
-        widget.hijriMaxDate!.hYear,
-        widget.hijriMaxDate!.hMonth,
-        widget.hijriMaxDate!.hDay,
-      );
-    }
     return widget.maxDate;
   }
 
