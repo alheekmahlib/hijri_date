@@ -83,7 +83,7 @@ Add to your pubspec.yaml:
 
 ```yaml
 dependencies:
-  hijri_date: ^1.1.0
+  hijri_date: ^1.2.0
 ```
 
 Single entry import:
@@ -257,8 +257,16 @@ MoonPhaseWidget(
   overlayOpacity: 0.35,
   backgroundAssetPath: 'assets/moon_background.svg', // اختياري
   moonAssetPath: 'assets/moon.svg',
+  showPhaseName: true, // إظهار اسم الطور أسفل القمر
+  phaseNameLanguage: 'ar', // اختياري: ar أو en؛ الافتراضي لغة التطبيق
+  phaseNameStyle: const TextStyle(fontSize: 16), // اختياري
 );
 ```
+
+اسم الطور مخفي افتراضيًا؛ استخدم `showPhaseName: true` لإظهاره.
+تُستخدم الأسماء العربية عندما تكون لغة التطبيق `ar`، والإنجليزية لبقية اللغات؛
+يمكن تجاوز ذلك باستخدام `phaseNameLanguage`. تضاف مساحة الاسم أسفل حجم الودجت الأصلي.
+الظل مخفي افتراضيًا، لذا استخدم `overlayOpacity` أكبر من صفر لإظهار الطور.
 
 ## Islamic Events
 

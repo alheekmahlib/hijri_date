@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -35,6 +37,15 @@ class MoonPhaseWidget extends StatelessWidget {
   /// نسبة امتلاء دائرة القمر داخل الودجت (0 - 1)
   final double moonScale;
 
+  /// إظهار اسم الطور أسفل القمر (مخفي افتراضيًا).
+  final bool showPhaseName;
+
+  /// لغة الاسم: ar أو en. عند عدم تحديدها تُستخدم لغة التطبيق.
+  final String? phaseNameLanguage;
+
+  /// نمط اسم الطور، أو نمط النص الافتراضي عند عدم تحديده.
+  final TextStyle? phaseNameStyle;
+
   const MoonPhaseWidget({
     super.key,
     required this.moonInfo,
@@ -47,6 +58,9 @@ class MoonPhaseWidget extends StatelessWidget {
     this.fit = BoxFit.contain,
     this.usePhaseBasedIllumination = false,
     this.moonScale = 0.9,
+    this.showPhaseName = false,
+    this.phaseNameLanguage,
+    this.phaseNameStyle,
   })  : assert(overlayOpacity >= 0 && overlayOpacity <= 1),
         assert(moonScale > 0 && moonScale <= 1);
 
@@ -56,7 +70,7 @@ class MoonPhaseWidget extends StatelessWidget {
         ? _phaseToIllumination(moonInfo.phase)
         : moonInfo.illumination;
 
-    return SizedBox(
+    final moon = SizedBox(
       width: size + 40,
       height: size + 40,
       child: Stack(
@@ -82,6 +96,7 @@ class MoonPhaseWidget extends StatelessWidget {
               size: Size(size - 30, size - 30),
               painter: _MoonPhaseOverlayPainter(
                 phase: moonInfo.phase,
+                age: moonInfo.age,
                 illumination: effectiveIllumination,
                 overlayColor: overlayColor,
                 overlayOpacity: overlayOpacity,
@@ -90,6 +105,22 @@ class MoonPhaseWidget extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    if (!showPhaseName) return moon;
+
+    final language = phaseNameLanguage ??
+        Localizations.maybeLocaleOf(context)?.languageCode ??
+        'en';
+    final name = language.toLowerCase() == 'ar'
+        ? moonInfo.arabicName
+        : moonInfo.englishName;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        moon,
+        Text(name, style: phaseNameStyle, textAlign: TextAlign.center),
+      ],
     );
   }
 
@@ -117,6 +148,7 @@ class MoonPhaseWidget extends StatelessWidget {
 
 class _MoonPhaseOverlayPainter extends CustomPainter {
   final MoonPhase phase;
+  final double age;
   final double illumination;
   final Color overlayColor;
   final double overlayOpacity;
@@ -124,6 +156,7 @@ class _MoonPhaseOverlayPainter extends CustomPainter {
 
   const _MoonPhaseOverlayPainter({
     required this.phase,
+    required this.age,
     required this.illumination,
     required this.overlayColor,
     required this.overlayOpacity,
@@ -131,6 +164,9 @@ class _MoonPhaseOverlayPainter extends CustomPainter {
   });
 
   bool get _isWaxing {
+    if (phase == MoonPhase.newMoon || phase == MoonPhase.fullMoon) {
+      return age < 29.530588853 / 2;
+    }
     return phase == MoonPhase.waxingCrescent ||
         phase == MoonPhase.firstQuarter ||
         phase == MoonPhase.waxingGibbous;
@@ -165,22 +201,48 @@ class _MoonPhaseOverlayPainter extends CustomPainter {
   void _drawCircularShadow(Canvas canvas, Size size, double k) {
     final r = size.width / 2 * moonScale;
     final center = Offset(size.width / 2, size.height / 2);
-    final clipPath = Path()
-      ..addOval(Rect.fromCircle(center: center, radius: r));
-
-    canvas.clipPath(clipPath);
+    // The terminator is the projection of a great circle on the lunar disk.
+    // Its horizontal radius changes sign at quarter moon.
+    final direction = _isWaxing ? 1.0 : -1.0;
+    final terminatorX = direction * (1 - 2 * k) * r;
+    const control = 0.5522847498307936;
+    final shadow = Path()
+      ..moveTo(center.dx, center.dy - r)
+      ..arcTo(
+        Rect.fromCircle(center: center, radius: r),
+        -math.pi / 2,
+        -direction * math.pi,
+        false,
+      )
+      ..cubicTo(
+        center.dx + terminatorX * control,
+        center.dy + r,
+        center.dx + terminatorX,
+        center.dy + r * control,
+        center.dx + terminatorX,
+        center.dy,
+      )
+      ..cubicTo(
+        center.dx + terminatorX,
+        center.dy - r * control,
+        center.dx + terminatorX * control,
+        center.dy - r,
+        center.dx,
+        center.dy - r,
+      )
+      ..close();
 
     final shadowPaint = Paint()
       ..color = overlayColor.withValues(alpha: overlayOpacity)
       ..style = PaintingStyle.fill;
-    final d = (2 * r * k).clamp(0.0, 2 * r);
-    final dx = _isWaxing ? -d : d;
-    canvas.drawCircle(Offset(center.dx + dx, center.dy), r, shadowPaint);
+    canvas.drawPath(shadow, shadowPaint);
   }
 
   @override
   bool shouldRepaint(covariant _MoonPhaseOverlayPainter oldDelegate) {
     return oldDelegate.phase != phase ||
+        oldDelegate.age != age ||
+        oldDelegate.moonScale != moonScale ||
         oldDelegate.illumination != illumination ||
         oldDelegate.overlayColor != overlayColor ||
         oldDelegate.overlayOpacity != overlayOpacity;

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+- ✨ **NEW:** Optionally display the current moon phase name in Arabic or English, with a customizable text style.
+- 🔧 **ENHANCED:** Moon phase shadow uses an elliptical terminator for a more realistic shape.
+
 ## 1.1.0
 - ✨ **NEW:** HorizontalWeekCalendar now uses Flutter's CarouselView with the same layout behavior.
 - ✨ **NEW:** Optional Gregorian day display under Hijri day in HorizontalWeekCalendar.
