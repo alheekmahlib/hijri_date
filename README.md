@@ -3,7 +3,7 @@
 <img src="https://raw.githubusercontent.com/alheekmahlib/data/refs/heads/main/packages/hijri_date/banner.png" width="500"/>
 </p>
 
-<!-- الصف الأول -->
+<!-- First row -->
 <p align="center">
   <a href="https://pub.dev/packages/hijri_date">
     <img alt="pub package" src="https://img.shields.io/pub/v/hijri_date.svg?color=2cacbf&labelColor=145261" />
@@ -22,7 +22,7 @@
   </a>
 </p>
 
-<!-- الصف الثاني -->
+<!-- Second row -->
 <p align="center">
   <a href="https://flutter.dev/">
     <img alt="Web" src="https://img.shields.io/badge/Web-145261?logo=google-chrome&logoColor=white" />
@@ -239,11 +239,11 @@ final stats = HijriDate.getMoonPhaseStatisticsForMonth(1445, 9); // {phase -> da
 
 ## Moon Phase Widget
 
-ويدجت Flutter لعرض طور القمر بصريًا باستخدام SVG وقناع هندسي، مع دعم خلفية اختيارية.
+A Flutter widget that displays the current moon phase using an SVG image and a geometric shadow, with an optional background.
 
-**الأصول الافتراضية داخل الحزمة:**
+**Default assets included in the package:**
 - assets/moon.svg
-- assets/moon_background.svg (اختياري)
+- assets/moon_background.svg (optional)
 
 ```dart
 import 'package:hijri_date/hijri.dart';
@@ -255,18 +255,19 @@ MoonPhaseWidget(
   size: 160,
   overlayColor: Colors.black,
   overlayOpacity: 0.35,
-  backgroundAssetPath: 'assets/moon_background.svg', // اختياري
+  backgroundAssetPath: 'assets/moon_background.svg', // Optional
   moonAssetPath: 'assets/moon.svg',
-  showPhaseName: true, // إظهار اسم الطور أسفل القمر
-  phaseNameLanguage: 'ar', // اختياري: ar أو en؛ الافتراضي لغة التطبيق
-  phaseNameStyle: const TextStyle(fontSize: 16), // اختياري
+  showPhaseName: true, // Show the phase name below the moon
+  phaseNameLanguage: 'ar', // Optional: ar or en; defaults to the app locale
+  phaseNameStyle: const TextStyle(fontSize: 16), // Optional
 );
 ```
 
-اسم الطور مخفي افتراضيًا؛ استخدم `showPhaseName: true` لإظهاره.
-تُستخدم الأسماء العربية عندما تكون لغة التطبيق `ar`، والإنجليزية لبقية اللغات؛
-يمكن تجاوز ذلك باستخدام `phaseNameLanguage`. تضاف مساحة الاسم أسفل حجم الودجت الأصلي.
-الظل مخفي افتراضيًا، لذا استخدم `overlayOpacity` أكبر من صفر لإظهار الطور.
+The phase name is hidden by default; set `showPhaseName: true` to display it.
+The name is displayed in Arabic when the app locale is `ar` and in English for
+other locales. Use `phaseNameLanguage` to override the locale. The label adds
+height below the original widget size. The shadow is also hidden by default;
+set `overlayOpacity` above zero to display the phase.
 
 ## Islamic Events
 
