@@ -317,14 +317,14 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
   List<List<DateTime>> listOfWeeks = [];
 
   HijriDate dateTimeToHijri(DateTime date) {
-    final effectiveDate = _hijriDayOffset != 0
-        ? date.add(Duration(days: _hijriDayOffset))
-        : date;
+    final effectiveDate =
+        _hijriDayOffset != 0 ? date.add(Duration(days: _hijriDayOffset)) : date;
     final hijri = HijriDate();
     if (widget.useHijriDates && widget.hijriInitialDate?.adjustments != null) {
       hijri.setAdjustments(widget.hijriInitialDate!.adjustments!);
     }
-    hijri.gregorianToHijri(effectiveDate.year, effectiveDate.month, effectiveDate.day);
+    hijri.gregorianToHijri(
+        effectiveDate.year, effectiveDate.month, effectiveDate.day);
     return hijri;
   }
 
@@ -502,7 +502,7 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
     return widget.maxDate;
   }
 
-  initCalender() {
+  void initCalender() {
     final date = getEffectiveInitialDate();
     selectedDate = getEffectiveInitialDate();
 
@@ -560,7 +560,7 @@ class _HorizontalWeekCalendarState extends State<HorizontalWeekCalendar> {
     }
   }
 
-  _getMorePreviousWeeks() {
+  void _getMorePreviousWeeks() {
     List<DateTime> minus7Days = [];
     DateTime startFrom = listOfWeeks[currentWeekIndex].first;
 

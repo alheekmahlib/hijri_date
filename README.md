@@ -83,7 +83,7 @@ Add to your pubspec.yaml:
 
 ```yaml
 dependencies:
-  hijri_date: ^1.2.0
+  hijri_date: ^1.2.1
 ```
 
 Single entry import:
@@ -237,12 +237,20 @@ final newMoons  = HijriDate.getNewMoonDatesInYear(1445);
 final stats = HijriDate.getMoonPhaseStatisticsForMonth(1445, 9); // {phase -> days}
 ```
 
+Moon phase calculations are approximate and account for the supplied instant.
+`HijriDate.now()` and `HijriDate.fromDate(date)` retain that instant for
+`getMoonPhase()`, while a Hijri date without a time uses local midnight. To
+calculate a phase directly for an instant, use
+`MoonPhaseCalculator.getMoonPhase(DateTime.now())`. The four principal phase
+names cover a short interval around their exact astronomical events.
+
 ## Moon Phase Widget
 
-A Flutter widget that displays the current moon phase using an SVG image and a geometric shadow, with an optional background.
+A Flutter widget that displays the current moon phase using a PNG or SVG image and a softly edged geometric shadow, with an optional background.
 
 **Default assets included in the package:**
-- assets/moon.svg
+- assets/moon.png (default)
+- assets/moon.svg (alternative)
 - assets/moon_background.svg (optional)
 
 ```dart
@@ -256,7 +264,7 @@ MoonPhaseWidget(
   overlayColor: Colors.black,
   overlayOpacity: 0.35,
   backgroundAssetPath: 'assets/moon_background.svg', // Optional
-  moonAssetPath: 'assets/moon.svg',
+  moonAssetPath: 'assets/moon.png', // PNG, JPEG, WebP, or SVG asset
   showPhaseName: true, // Show the phase name below the moon
   phaseNameLanguage: 'ar', // Optional: ar or en; defaults to the app locale
   phaseNameStyle: const TextStyle(fontSize: 16), // Optional
@@ -266,8 +274,10 @@ MoonPhaseWidget(
 The phase name is hidden by default; set `showPhaseName: true` to display it.
 The name is displayed in Arabic when the app locale is `ar` and in English for
 other locales. Use `phaseNameLanguage` to override the locale. The label adds
-height below the original widget size. The shadow is also hidden by default;
-set `overlayOpacity` above zero to display the phase.
+height below the original widget size. The shadow opacity defaults to `0.8`; set `overlayOpacity` to `0` to hide it.
+Custom moon assets can use SVG or any image format supported by Flutter. Use
+`assetPackage: null` for assets bundled by the host app, and adjust `moonScale`
+if the moon occupies a different proportion of the image.
 
 ## Islamic Events
 

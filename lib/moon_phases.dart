@@ -70,62 +70,82 @@ class MoonPhaseCalculator {
     MoonPhase.waningCrescent: 'Waning Crescent',
   };
 
-  /// حساب Julian Day Number
-  static double _getJulianDayNumber(DateTime date) {
-    int year = date.year;
-    int month = date.month;
-    int day = date.day;
-    double hour = date.hour + date.minute / 60.0 + date.second / 3600.0;
+  static const double _synodicMonth = 29.530588853;
+  static const double _degreesToRadians = math.pi / 180;
 
-    if (month <= 2) {
-      year -= 1;
-      month += 12;
+  static double _sinDegrees(double degrees) =>
+      math.sin(degrees * _degreesToRadians);
+
+  /// Approximate geocentric Moon-Sun ecliptic longitude difference in degrees.
+  /// The largest lunar perturbations are included; this is not an ephemeris.
+  static double _phaseAngle(DateTime date) {
+    final days = date.toUtc().microsecondsSinceEpoch / 86400000000 +
+        2440587.5 -
+        2451545.0;
+    final sunMeanLongitude = 280.46646 + 0.98564736 * days;
+    final sunAnomaly = 357.52911 + 0.98560028 * days;
+    final moonMeanLongitude = 218.31645 + 13.17639648 * days;
+    final moonAnomaly = 134.9634 + 13.06499295 * days;
+    final elongation = 297.8502 + 12.19074912 * days;
+    final latitudeArgument = 93.2721 + 13.22935024 * days;
+
+    final sunLongitude = sunMeanLongitude +
+        1.9148 * _sinDegrees(sunAnomaly) +
+        0.0200 * _sinDegrees(2 * sunAnomaly);
+    final moonLongitude = moonMeanLongitude +
+        6.289 * _sinDegrees(moonAnomaly) +
+        1.274 * _sinDegrees(2 * elongation - moonAnomaly) +
+        0.658 * _sinDegrees(2 * elongation) +
+        0.214 * _sinDegrees(2 * moonAnomaly) -
+        0.186 * _sinDegrees(sunAnomaly) -
+        0.114 * _sinDegrees(2 * latitudeArgument) +
+        0.059 * _sinDegrees(2 * elongation - 2 * moonAnomaly) +
+        0.057 * _sinDegrees(2 * elongation - sunAnomaly - moonAnomaly) +
+        0.053 * _sinDegrees(2 * elongation + moonAnomaly) +
+        0.046 * _sinDegrees(2 * elongation - sunAnomaly) +
+        0.041 * _sinDegrees(sunAnomaly - moonAnomaly);
+    return (moonLongitude - sunLongitude) % 360;
+  }
+
+  /// Find a conjunction or opposition by bracketing and bisecting its crossing.
+  static DateTime _phaseEvent(DateTime date, double target,
+      {bool previous = false}) {
+    final direction = previous ? -1 : 1;
+    double signedAngle(DateTime time) =>
+        ((_phaseAngle(time) - target + 180) % 360) - 180;
+
+    var start = date;
+    var startAngle = signedAngle(start);
+    for (var i = 0; i < 128; i++) {
+      final end = start.add(Duration(hours: 6 * direction));
+      final endAngle = signedAngle(end);
+      // Reject the discontinuity opposite the requested phase.
+      if ((previous
+              ? endAngle <= 0 && startAngle >= 0
+              : startAngle <= 0 && endAngle >= 0) &&
+          (endAngle - startAngle).abs() < 180) {
+        var low = previous ? end : start;
+        var high = previous ? start : end;
+        for (var j = 0; j < 20; j++) {
+          final middle = low.add(
+              Duration(microseconds: high.difference(low).inMicroseconds ~/ 2));
+          if (signedAngle(middle) < 0) {
+            low = middle;
+          } else {
+            high = middle;
+          }
+        }
+        return high;
+      }
+      start = end;
+      startAngle = endAngle;
     }
-
-    double a = (year / 100.0).floor().toDouble();
-    double b = 2 - a + (a / 4.0).floor();
-
-    return (365.25 * (year + 4716)).floor() +
-        (30.6001 * (month + 1)).floor() +
-        day +
-        hour / 24.0 +
-        b -
-        1524.5;
-  }
-
-  /// حساب عمر القمر بالأيام منذ المحاق الأخير
-  static double _getMoonAge(DateTime date) {
-    double jd = _getJulianDayNumber(date);
-
-    // تاريخ محاق مرجعي معروف: 6 يناير 2000, 18:14 UTC
-    double knownNewMoonJD = 2451550.1;
-
-    // الدورة القمرية المتوسطة
-    double synodicMonth = 29.530588853;
-
-    double daysSinceKnownNewMoon = jd - knownNewMoonJD;
-    double lunationsSinceKnown = daysSinceKnownNewMoon / synodicMonth;
-
-    // عمر القمر هو الجزء العشري من الدورات مضروباً في طول الدورة
-    double moonAge =
-        (lunationsSinceKnown - lunationsSinceKnown.floor()) * synodicMonth;
-
-    return moonAge;
-  }
-
-  /// حساب نسبة الإضاءة
-  static double _getIllumination(double moonAge) {
-    double synodicMonth = 29.530588853;
-    double phase = moonAge / synodicMonth;
-
-    // حساب نسبة الإضاءة بناءً على الطور
-    return (1 - math.cos(2 * math.pi * phase)) / 2;
+    throw StateError('Unable to find lunar phase event');
   }
 
   /// تحديد طور القمر بناءً على العمر
   static MoonPhase _getPhaseFromAge(double moonAge) {
-    double synodicMonth = 29.530588853;
-    double normalizedAge = moonAge / synodicMonth;
+    double normalizedAge = moonAge / _synodicMonth;
 
     if (normalizedAge < 0.03125 || normalizedAge >= 0.96875) {
       return MoonPhase.newMoon;
@@ -146,37 +166,18 @@ class MoonPhaseCalculator {
     }
   }
 
-  /// حساب تاريخ البدر التالي
-  static DateTime _getNextFullMoon(DateTime date, double moonAge) {
-    double synodicMonth = 29.530588853;
-    double daysToFullMoon;
-
-    if (moonAge <= synodicMonth / 2) {
-      // إذا كان القمر في النصف الأول من الدورة
-      daysToFullMoon = (synodicMonth / 2) - moonAge;
-    } else {
-      // إذا كان القمر في النصف الثاني من الدورة
-      daysToFullMoon = synodicMonth - moonAge + (synodicMonth / 2);
-    }
-
-    return date.add(Duration(days: daysToFullMoon.round()));
-  }
-
-  /// حساب تاريخ المحاق التالي
-  static DateTime _getNextNewMoon(DateTime date, double moonAge) {
-    double synodicMonth = 29.530588853;
-    double daysToNewMoon = synodicMonth - moonAge;
-
-    return date.add(Duration(days: daysToNewMoon.round()));
-  }
-
-  /// حساب طور القمر لتاريخ معين
+  /// Calculates an approximate geocentric phase for the supplied instant.
+  /// Local and UTC DateTime values representing the same instant give the same result.
   static MoonPhaseInfo getMoonPhase(DateTime date) {
-    double moonAge = _getMoonAge(date);
-    MoonPhase phase = _getPhaseFromAge(moonAge);
-    double illumination = _getIllumination(moonAge);
-    DateTime nextFullMoon = _getNextFullMoon(date, moonAge);
-    DateTime nextNewMoon = _getNextNewMoon(date, moonAge);
+    final angle = _phaseAngle(date);
+    final previousNewMoon = _phaseEvent(date, 0, previous: true);
+    final moonAge =
+        date.difference(previousNewMoon).inMicroseconds / 86400000000;
+    // Classification uses elongation, while age is elapsed time since conjunction.
+    final phase = _getPhaseFromAge(angle / 360 * _synodicMonth);
+    final illumination = (1 - math.cos(angle * _degreesToRadians)) / 2;
+    final nextFullMoon = _phaseEvent(date, 180);
+    final nextNewMoon = _phaseEvent(date, 0);
 
     return MoonPhaseInfo(
       phase: phase,
@@ -191,12 +192,7 @@ class MoonPhaseCalculator {
 
   /// حساب طور القمر للتاريخ الهجري
   static MoonPhaseInfo getMoonPhaseForHijri(HijriDate hijriDate) {
-    DateTime gregorianDate = hijriDate.hijriToGregorian(
-      hijriDate.hYear,
-      hijriDate.hMonth,
-      hijriDate.hDay,
-    );
-    return getMoonPhase(gregorianDate);
+    return hijriDate.getMoonPhase();
   }
 
   /// الحصول على جميع تواريخ البدر في سنة هجرية معينة
@@ -212,21 +208,10 @@ class MoonPhaseCalculator {
     DateTime startGregorian = startDate.hijriToGregorian(hijriYear, 1, 1);
     DateTime endGregorian = startDate.hijriToGregorian(hijriYear + 1, 1, 1);
 
-    DateTime currentDate = startGregorian;
-    MoonPhase? lastPhase;
-
-    while (currentDate.isBefore(endGregorian)) {
-      MoonPhaseInfo moonInfo = getMoonPhase(currentDate);
-
-      // Add only when transitioning to full moon (to avoid duplicate consecutive days)
-      if (moonInfo.phase == MoonPhase.fullMoon &&
-          lastPhase != MoonPhase.fullMoon) {
-        HijriDate hijriFullMoon = HijriDate.fromDate(currentDate);
-        fullMoons.add(hijriFullMoon);
-      }
-
-      lastPhase = moonInfo.phase;
-      currentDate = currentDate.add(Duration(days: 1));
+    var event = _phaseEvent(startGregorian, 180);
+    while (event.isBefore(endGregorian)) {
+      fullMoons.add(HijriDate.fromDate(event.toLocal()));
+      event = _phaseEvent(event.add(const Duration(minutes: 1)), 180);
     }
 
     return fullMoons;
@@ -244,21 +229,10 @@ class MoonPhaseCalculator {
     DateTime startGregorian = startDate.hijriToGregorian(hijriYear, 1, 1);
     DateTime endGregorian = startDate.hijriToGregorian(hijriYear + 1, 1, 1);
 
-    DateTime currentDate = startGregorian;
-    MoonPhase? lastPhase;
-
-    while (currentDate.isBefore(endGregorian)) {
-      MoonPhaseInfo moonInfo = getMoonPhase(currentDate);
-
-      // Add only when transitioning to new moon (to avoid duplicate consecutive days)
-      if (moonInfo.phase == MoonPhase.newMoon &&
-          lastPhase != MoonPhase.newMoon) {
-        HijriDate hijriNewMoon = HijriDate.fromDate(currentDate);
-        newMoons.add(hijriNewMoon);
-      }
-
-      lastPhase = moonInfo.phase;
-      currentDate = currentDate.add(Duration(days: 1));
+    var event = _phaseEvent(startGregorian, 0);
+    while (event.isBefore(endGregorian)) {
+      newMoons.add(HijriDate.fromDate(event.toLocal()));
+      event = _phaseEvent(event.add(const Duration(minutes: 1)), 0);
     }
 
     return newMoons;

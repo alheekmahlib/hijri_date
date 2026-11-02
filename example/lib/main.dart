@@ -31,8 +31,8 @@ class HijriExamplePage extends StatelessWidget {
     final gregorian = DateTime(2024, 3, 10);
     final hijriFromGregorian = HijriDate.fromDate(gregorian);
     final arabicNumber = DigitsConverter.convertNumberToLocale(12345, 'ar');
-    final moonPhase = today.getMoonPhaseName();
-    final moonInfo = today.getMoonPhase();
+    final moonInfo = MoonPhaseCalculator.getMoonPhase(DateTime.now());
+    final moonPhase = moonInfo.arabicName;
     final events = IslamicEventsManager.getTodaysEvents();
     final hijriInitial = HijriDate.now();
     final hijriMin = HijriDate.fromHijri(
@@ -153,7 +153,7 @@ class HijriExamplePage extends StatelessWidget {
                               moonInfo: moonInfo,
                               size: 180,
                               overlayColor: Colors.black,
-                              overlayOpacity: 1.0,
+                              // overlayOpacity: 1.0,
                               backgroundAssetPath: 'assets/moon_background.svg',
                             ),
                           ),

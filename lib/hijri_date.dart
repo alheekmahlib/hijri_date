@@ -12,6 +12,7 @@ class HijriDate {
   late int hMonth;
   late int hYear;
   int? wkDay;
+  DateTime? _sourceInstant;
   late String longMonthName;
   late String shortMonthName;
   late String dayWeName;
@@ -83,6 +84,7 @@ class HijriDate {
 
   HijriDate.fromDate(DateTime date) {
     gregorianToHijri(date.year, date.month, date.day);
+    _sourceInstant = date;
   }
 
   HijriDate.fromHijri(int year, int month, int day) {
@@ -128,7 +130,9 @@ class HijriDate {
 
   String _now() {
     DateTime today = DateTime.now();
-    return gregorianToHijri(today.year, today.month, today.day);
+    final result = gregorianToHijri(today.year, today.month, today.day);
+    _sourceInstant = today;
+    return result;
   }
 
   int getDaysInMonth(int year, int month) {
@@ -187,6 +191,7 @@ class HijriDate {
   }
 
   String gregorianToHijri(int pYear, int pMonth, int pDay) {
+    _sourceInstant = null;
     //This code the modified version of R.H. van Gent Code, it can be found at http://www.staff.science.uu.nl/~gent0113/islam/ummalqura.htm
     // read calendar data
 
@@ -639,9 +644,22 @@ class HijriDate {
   // ======================== Moon Phases Methods ========================
 
   /// حساب طور القمر للتاريخ الهجري الحالي
-  /// Returns the moon phase information for the current Hijri date
+  /// Uses the original instant for dates created with [HijriDate.now] or
+  /// [HijriDate.fromDate], provided the Hijri date has not changed. Dates
+  /// created without a time use midnight in the local time zone.
   MoonPhaseInfo getMoonPhase() {
-    return MoonPhaseCalculator.getMoonPhaseForHijri(this);
+    final source = _sourceInstant;
+    if (source != null) {
+      final converted = hijriToGregorian(hYear, hMonth, hDay);
+      if (converted.year == source.year &&
+          converted.month == source.month &&
+          converted.day == source.day) {
+        return MoonPhaseCalculator.getMoonPhase(source);
+      }
+    }
+    return MoonPhaseCalculator.getMoonPhase(
+      hijriToGregorian(hYear, hMonth, hDay),
+    );
   }
 
   /// حساب طور القمر للتاريخ الهجري المحدد

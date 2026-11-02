@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hijri_date/moon_phase_widget.dart';
 import 'package:hijri_date/moon_phases.dart';
 
@@ -10,8 +11,8 @@ MoonPhaseInfo moon(MoonPhase phase, double illumination, double age) {
     phase: phase,
     illumination: illumination,
     age: age,
-    nextFullMoon: DateTime(2026),
-    nextNewMoon: DateTime(2026),
+    nextFullMoon: DateTime(2026, 1, age < 14.8 ? 2 : 3),
+    nextNewMoon: DateTime(2026, 1, age < 14.8 ? 3 : 2),
     arabicName: 'هلال متزايد',
     englishName: 'Waxing Crescent',
   );
@@ -81,6 +82,33 @@ void main() {
     expect(find.text('هلال متزايد'), findsNothing);
     await tester.pumpWidget(buildMoon());
     expect(find.text('Waxing Crescent'), findsNothing);
+  });
+
+  testWidgets('moon asset supports raster images and SVG', (tester) async {
+    Widget buildMoon(String path) => Directionality(
+          textDirection: TextDirection.ltr,
+          child: MoonPhaseWidget(
+            moonInfo: moon(MoonPhase.firstQuarter, .5, 7),
+            moonAssetPath: path,
+          ),
+        );
+
+    await tester.pumpWidget(buildMoon('assets/moon.png'));
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.byType(SvgPicture), findsNothing);
+    await tester.pumpWidget(buildMoon('assets/moon.svg'));
+    expect(find.byType(Image), findsNothing);
+    expect(find.byType(SvgPicture), findsOneWidget);
+  });
+
+  testWidgets('shadow is softly feathered but stays inside the disk',
+      (tester) async {
+    final quarter = await painterFor(
+        tester, moon(MoonPhase.firstQuarter, .5, 7),
+        scale: .8);
+    expect(await alphaAt(tester, quarter, 49, 50), inExclusiveRange(0, 255));
+    expect(await alphaAt(tester, quarter, 5, 50), 0);
+    expect(await alphaAt(tester, quarter, 30, 50), 255);
   });
 
   testWidgets('terminator follows crescent, quarter, and gibbous geometry',

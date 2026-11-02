@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'moon_phases.dart';
 
-/// ويدجت لعرض طور القمر بصريًا باستخدام SVG وقناع هندسي.
+/// ويدجت لعرض طور القمر بصريًا باستخدام صورة وقناع هندسي.
 class MoonPhaseWidget extends StatelessWidget {
   /// معلومات طور القمر (يفضّل أخذها من MoonPhaseCalculator أو HijriDate)
   final MoonPhaseInfo moonInfo;
@@ -16,10 +16,10 @@ class MoonPhaseWidget extends StatelessWidget {
   /// لون طبقة الظل فوق القمر
   final Color overlayColor;
 
-  /// شفافية طبقة الظل (افتراضيًا 0)
+  /// شفافية طبقة الظل (افتراضيًا 0.8)
   final double overlayOpacity;
 
-  /// مسار SVG للقمر (قابل للتمرير)
+  /// مسار صورة القمر، بصيغة SVG أو أي صيغة صور يدعمها Flutter.
   final String moonAssetPath;
 
   /// مسار SVG للخلفية (اختياري)
@@ -28,7 +28,7 @@ class MoonPhaseWidget extends StatelessWidget {
   /// اسم الحزمة للأصول (افتراضيًا hijri_date)
   final String? assetPackage;
 
-  /// طريقة احتواء الـ SVG
+  /// طريقة احتواء صورة القمر
   final BoxFit fit;
 
   /// استخدام إضاءة مبنية على الطور بدل القيمة الفعلية
@@ -51,9 +51,9 @@ class MoonPhaseWidget extends StatelessWidget {
     required this.moonInfo,
     this.size = 160,
     this.overlayColor = Colors.black,
-    this.overlayOpacity = 0,
-    this.moonAssetPath = 'assets/moon.svg',
-    this.backgroundAssetPath,
+    this.overlayOpacity = 0.8,
+    this.moonAssetPath = 'assets/moon.png',
+    this.backgroundAssetPath = 'assets/moon_background.svg',
     this.assetPackage = 'hijri_date',
     this.fit = BoxFit.contain,
     this.usePhaseBasedIllumination = false,
@@ -84,19 +84,28 @@ class MoonPhaseWidget extends StatelessWidget {
               height: size + 40,
               fit: BoxFit.cover,
             ),
-          SvgPicture.asset(
-            moonAssetPath,
-            package: assetPackage,
-            width: size - 30,
-            height: size - 30,
-            fit: fit,
-          ),
+          if (moonAssetPath.toLowerCase().endsWith('.svg'))
+            SvgPicture.asset(
+              moonAssetPath,
+              package: assetPackage,
+              width: size - 30,
+              height: size - 30,
+              fit: fit,
+            )
+          else
+            Image.asset(
+              moonAssetPath,
+              package: assetPackage,
+              width: size - 30,
+              height: size - 30,
+              fit: fit,
+            ),
           if (overlayOpacity > 0)
             CustomPaint(
               size: Size(size - 30, size - 30),
               painter: _MoonPhaseOverlayPainter(
                 phase: moonInfo.phase,
-                age: moonInfo.age,
+                isWaxing: moonInfo.nextFullMoon.isBefore(moonInfo.nextNewMoon),
                 illumination: effectiveIllumination,
                 overlayColor: overlayColor,
                 overlayOpacity: overlayOpacity,
@@ -148,7 +157,7 @@ class MoonPhaseWidget extends StatelessWidget {
 
 class _MoonPhaseOverlayPainter extends CustomPainter {
   final MoonPhase phase;
-  final double age;
+  final bool isWaxing;
   final double illumination;
   final Color overlayColor;
   final double overlayOpacity;
@@ -156,7 +165,7 @@ class _MoonPhaseOverlayPainter extends CustomPainter {
 
   const _MoonPhaseOverlayPainter({
     required this.phase,
-    required this.age,
+    required this.isWaxing,
     required this.illumination,
     required this.overlayColor,
     required this.overlayOpacity,
@@ -165,7 +174,7 @@ class _MoonPhaseOverlayPainter extends CustomPainter {
 
   bool get _isWaxing {
     if (phase == MoonPhase.newMoon || phase == MoonPhase.fullMoon) {
-      return age < 29.530588853 / 2;
+      return isWaxing;
     }
     return phase == MoonPhase.waxingCrescent ||
         phase == MoonPhase.firstQuarter ||
@@ -234,14 +243,19 @@ class _MoonPhaseOverlayPainter extends CustomPainter {
 
     final shadowPaint = Paint()
       ..color = overlayColor.withValues(alpha: overlayOpacity)
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.fill
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, r * 0.015);
+    canvas.save();
+    canvas
+        .clipPath(Path()..addOval(Rect.fromCircle(center: center, radius: r)));
     canvas.drawPath(shadow, shadowPaint);
+    canvas.restore();
   }
 
   @override
   bool shouldRepaint(covariant _MoonPhaseOverlayPainter oldDelegate) {
     return oldDelegate.phase != phase ||
-        oldDelegate.age != age ||
+        oldDelegate.isWaxing != isWaxing ||
         oldDelegate.moonScale != moonScale ||
         oldDelegate.illumination != illumination ||
         oldDelegate.overlayColor != overlayColor ||

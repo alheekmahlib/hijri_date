@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+- 🔧 **FIXED:** Moon phase calculations now account for the supplied instant and time zone, with improved approximate lunar positions and event times.
+- 🔧 **ENHANCED:** Moon phase shadows have a softly feathered edge, and the default moon image uses a detailed PNG.
+- ✨ **NEW:** `MoonPhaseWidget` supports SVG and Flutter-supported raster image assets.
+- 📚 **UPDATED:** Moon phase and widget documentation, including phase naming and custom assets.
+
 ## 1.2.0
 - ✨ **NEW:** Optionally display the current moon phase name in Arabic or English, with a customizable text style.
 - 🔧 **ENHANCED:** Moon phase shadow uses an elliptical terminator for a more realistic shape.
